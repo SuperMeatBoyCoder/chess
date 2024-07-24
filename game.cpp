@@ -4,29 +4,53 @@
 
 class Game {
 private:
+    const std::vector<piece_config> default_board_config = {
+        {1, 2, "White", "Pawn"}, {2, 2, "White", "Pawn"}, {3, 2, "White", "Pawn"}, {4, 2, "White", "Pawn"},
+        {5, 2, "White", "Pawn"}, {6, 2, "White", "Pawn"}, {7, 2, "White", "Pawn"}, {8, 2, "White", "Pawn"},
+        {1, 7, "Black", "Pawn"}, {2, 7, "Black", "Pawn"}, {3, 7, "Black", "Pawn"}, {4, 7, "Black", "Pawn"},
+        {5, 7, "Black", "Pawn"}, {6, 7, "Black", "Pawn"}, {1, 7, "Black", "Pawn"}, {8, 7, "Black", "Pawn"},
+        {5, 1, "White", "King"}, {5, 8, "Black", "King"},
+        {2, 1, "White", "Night"}, {7, 1, "White", "Night"}, {2, 8, "Black", "Night"}, {7, 8, "Black", "Night"},
+        };
+
     bool running = false;
     int move = 1;
-
-    std::vector<std::shared_ptr<ChessPiece>> white_pieces, black_pieces;
     Board* board;
 
     void CreateBoard() {
         // verticals is used first due to traditional notation in chess
-        std::shared_ptr<ChessPiece> white_king = std::make_shared<King>(5, 1, "White");
-        white_pieces.emplace_back(white_king);
-        std::shared_ptr<ChessPiece> black_king = std::make_shared<King>(5, 8, "Black");
-        black_pieces.emplace_back(black_king);
-        board = new Board(&white_pieces, &black_pieces, white_king, black_king);
-        board->AddFigure(white_king);
-        board->AddFigure(black_king);
-        for (int i = 1; i <= 8; i++) {
-            std::shared_ptr<ChessPiece> white_pawn = std::make_shared<Pawn>(i, 2, "White");
-            white_pieces.emplace_back(white_pawn);
-            board->AddFigure(white_pawn);
-            std::shared_ptr<ChessPiece> black_pawn =  std::make_shared<Pawn>(i, 7, "Black");
-            black_pieces.push_back(black_pawn);
-            board->AddFigure(black_pawn);
+        board = new Board();
+
+        for (piece_config raw_piece : default_board_config) {
+            std::shared_ptr<ChessPiece> piece;
+            switch (raw_piece.figure_type[0]) {
+                case 'K':
+                    piece = std::make_shared<King>(raw_piece);
+                    break;
+                case 'P':
+                    piece = std::make_shared<Pawn>(raw_piece);
+                    break;
+                case 'N':
+                    piece = std::make_shared<Knight>(raw_piece);
+                    break;
+                default:
+                    throw "InvalidPiece";
+            }
+            board->AddFigure(piece);
         }
+    }
+
+    std::vector<std::pair<int, int>> PossibleMovementChecked(std::shared_ptr<ChessPiece> moving_piece) {
+        int piece_v, piece_h;
+        std::tie(piece_v, piece_h) = moving_piece->GetPosition();
+        std::vector<std::pair<int, int>> can_move_checked;
+        for (std::pair<int, int> move : moving_piece->PossibleMovement(board)) {
+            board->Move(piece_v, piece_h, move.first, move.second);
+            if (!board->CheckForCheck(moving_piece->color))
+                can_move_checked.push_back(move);
+            board->Revert();
+        }
+        return can_move_checked;
     }
 
 public:
@@ -66,9 +90,9 @@ public:
             std::cout << "it's not your turn!\n";
             return;
         }
-        std::shared_ptr<ChessPiece> this_figure = board->GetFigure(input_v, input_h);
+        std::shared_ptr<ChessPiece> this_piece = board->GetFigure(input_v, input_h);
         std::cout << "Possible moves:\n";
-        std::vector<std::pair<int, int>> can_move = this_figure->PossibleMovement(board);
+        std::vector<std::pair<int, int>> can_move = PossibleMovementChecked(this_piece);
         for (std::pair<int, int> move : can_move) {
             std::cout << char('a'+ move.first - 1) << move.second << ' ';
         }
@@ -79,7 +103,7 @@ public:
             std::cout << "No such move!\n";
             return;
         }
-        board->Move(this_figure, input_v, input_h);
+        board->Move(this_piece, input_v, input_h);
         move++;
     }
 
