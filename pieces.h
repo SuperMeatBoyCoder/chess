@@ -20,6 +20,14 @@ public:
             if (board->IsCapturable(to_v + v_delta, to_h, color)) {
                 can_move.push_back(std::pair(to_v + v_delta, to_h));
             }
+            // En Passant (unfinished, need to rework the move system)
+            to_h -= h_delta;
+            if (board->IsCapturable(to_v + v_delta, to_h, color)) {
+                std::shared_ptr<ChessPiece> other_pawn = board->GetFigurePtr(to_v + v_delta, to_h);
+                if (other_pawn->figure_type == "Pawn" && other_pawn->times_moved == 1 && board->GetLastMovePtr()->moved == other_pawn) {
+                    
+                }
+            }
         }
 
         return can_move;

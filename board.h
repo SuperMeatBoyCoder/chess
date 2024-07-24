@@ -1,17 +1,11 @@
 #pragma once
 #include "chess_piece.h"
 
-struct chess_move {
-    std::shared_ptr<ChessPiece> moved;
-    int start_v, start_h;
-    std::shared_ptr<ChessPiece> captured;
-};
-
 class Board {
 private:
     std::vector<std::vector<std::shared_ptr<ChessPiece>>> chess_table;
     std::vector<chess_move> move_log;
-    std::shared_ptr<ChessPiece> white_king, black_king;
+    std::shared_ptr<ChessPiece> white_king, black_king = nullptr;
 public:
     Board() {
         chess_table.resize(9, std::vector<std::shared_ptr<ChessPiece>>(9, nullptr));
@@ -33,7 +27,7 @@ public:
         return chess_table[v][h] == nullptr;
     }
 
-    std::shared_ptr<ChessPiece> GetFigure(int v, int h) {
+    std::shared_ptr<ChessPiece> GetFigurePtr(int v, int h) {
         return chess_table[v][h];
     }
 
@@ -43,6 +37,10 @@ public:
 
     std::string GetType(int v, int h) {
         return chess_table[v][h]->figure_type;
+    }
+
+    chess_move* GetLastMovePtr() {
+        return &move_log.back();
     }
 
     bool Isinside(int v, int h) {

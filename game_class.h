@@ -106,7 +106,7 @@ public:
             std::cout << "it's not your turn!\n";
             return;
         }
-        std::shared_ptr<ChessPiece> this_piece = board->GetFigure(input_v, input_h);
+        std::shared_ptr<ChessPiece> this_piece = board->GetFigurePtr(input_v, input_h);
         std::vector<std::pair<int, int>> can_move = PossibleMovementChecked(this_piece);
         if (can_move.empty()) {
             std::cout << "This piece can't move!\n";

@@ -43,3 +43,9 @@ public:
         return false;
     }
 };
+
+struct chess_move {
+    std::shared_ptr<ChessPiece> moved = nullptr;
+    int start_v, start_h;
+    std::shared_ptr<ChessPiece> captured = nullptr;
+};
