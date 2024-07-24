@@ -8,7 +8,7 @@ private:
         {1, 2, "White", "Pawn"}, {2, 2, "White", "Pawn"}, {3, 2, "White", "Pawn"}, {4, 2, "White", "Pawn"},
         {5, 2, "White", "Pawn"}, {6, 2, "White", "Pawn"}, {7, 2, "White", "Pawn"}, {8, 2, "White", "Pawn"},
         {1, 7, "Black", "Pawn"}, {2, 7, "Black", "Pawn"}, {3, 7, "Black", "Pawn"}, {4, 7, "Black", "Pawn"},
-        {5, 7, "Black", "Pawn"}, {6, 7, "Black", "Pawn"}, {1, 7, "Black", "Pawn"}, {8, 7, "Black", "Pawn"},
+        {5, 7, "Black", "Pawn"}, {6, 7, "Black", "Pawn"}, {7, 7, "Black", "Pawn"}, {8, 7, "Black", "Pawn"},
         {5, 1, "White", "King"}, {5, 8, "Black", "King"},
         {2, 1, "White", "Night"}, {7, 1, "White", "Night"}, {2, 8, "Black", "Night"}, {7, 8, "Black", "Night"},
         };
