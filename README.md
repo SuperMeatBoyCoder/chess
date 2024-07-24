@@ -1,1 +1,1 @@
-Gotta be better
+Simple chess simulator for fun
