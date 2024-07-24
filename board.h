@@ -74,7 +74,6 @@ public:
         std::shared_ptr<ChessPiece> moving_piece = chess_table[start_v][start_h];
         moving_piece->UpdatePosition(end_v, end_h);
         moving_piece->times_moved++;
-        if (chess_table[end_v][end_h] != nullptr) chess_table[end_v][end_h]->captured = true;
         move_log.push_back({moving_piece, start_v, start_h, chess_table[end_v][end_h]});
         chess_table[end_v][end_h] = moving_piece;
         chess_table[start_v][start_h] = nullptr;
@@ -93,7 +92,6 @@ public:
         std::tie(end_v, end_h) = last_move.moved->GetPosition();
         last_move.moved->UpdatePosition(last_move.start_v, last_move.start_h);
         last_move.moved->times_moved--;
-        if (last_move.captured != nullptr) last_move.captured->captured = false;
         chess_table[last_move.start_v][last_move.start_h] = last_move.moved;
         chess_table[end_v][end_h] = last_move.captured;
     }

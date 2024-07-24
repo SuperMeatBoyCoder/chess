@@ -13,7 +13,6 @@ protected:
     int vertical = -1, horizontal = -1;
 public:
     const std::string figure_type, color;
-    bool captured = false;
     int times_moved = 0;
 
     ChessPiece(piece_config raw_piece) :
