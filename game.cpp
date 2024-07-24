@@ -3,43 +3,31 @@
 
 int move = 0;
 
-struct pieces {
-    std::vector<Pawn*> pawns;
-
-    ~pieces() {
-        for (Pawn* i : pawns) delete i;
-    }
-};
-
 class Game {
 private:
     bool running = false;
     int move = 0;
     Board board;
 
-    pieces white_pieces, black_pieces;
+    std::vector<Figure*> white_pieces, black_pieces;
 
     void CreateBoard() {
         for (int i = 1; i <= 8; i++) {
-            white_pieces.pawns.push_back(new Pawn(i, 2, "White"));
-            board.AddFigure(white_pieces.pawns.back(), i, 2);
-            black_pieces.pawns.push_back(new Pawn(i, 7, "Black"));
-            board.AddFigure(black_pieces.pawns.back(), i, 7);
+            white_pieces.push_back(new Pawn(i, 2, "White"));
+            board.AddFigure(white_pieces.back(), i, 2);
+            black_pieces.push_back(new Pawn(i, 7, "Black"));
+            board.AddFigure(black_pieces.back(), i, 7);
         }
     }
 
 public:
     Game() {
+        CreateBoard();
         log("Game was constructed");
     }
 
     ~Game() {
         log("Game was deconstructed");
-    }
-
-    void Config() {
-        running = true;
-        CreateBoard();
     }
 
     void Update() {
@@ -55,6 +43,10 @@ public:
         running = false;
     }
 
+    void Start() {
+        running = true;
+    }
+
     void End() {
         running = false;
     }
@@ -64,9 +56,10 @@ public:
     }
 };
 
+Game chess_game;
+
 int main() {
-    Game chess_game;
-    chess_game.Config();
+    chess_game.Start();
     while (chess_game.IsRunning()) {
         chess_game.Update();
     }

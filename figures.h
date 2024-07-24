@@ -1,74 +1,5 @@
-#include "global_config.h"
-#include <algorithm>
-
-class Figure {
-protected:
-    int vertical = -1, horizontal = -1;
-    std::string figure_type = "-", color;
-public:
-    Figure(int v, int h, std::string c, std::string f_type) :
-           vertical(v), horizontal(h), color(c), figure_type(f_type) {
-        log("Figure of type " + figure_type + " was constructed");
-    }
-
-    ~Figure() {
-        log("Figure of type " + figure_type + " was deconstructed");
-    }
-
-    std::pair<int, int> GetPosition() {
-        return std::pair(vertical, horizontal);
-    }
-
-    std::vector<std::pair<int, int>> PossibleMovement() {
-        return {};
-    }
-
-    std::string GetColor() {
-        return color;
-    }
-    
-    std::string GetType() {
-        return figure_type;
-    }
-};
-
-class Board {
-private:
-    std::vector<std::vector<Figure*>> chess_table;
-    std::pair<int, int> white_king = std::pair(5, 1), black_king = std::pair(5, 8);
-public:
-    Board() {
-        chess_table.resize(9, std::vector<Figure*>(9, nullptr));
-    }
-
-    void AddFigure(Figure* f, int v, int h) {
-        chess_table[v][h] = f;
-    }
-
-    bool IsEmpty(int v, int h) {
-        return chess_table[v][h] == nullptr;
-    }
-
-    std::string GetColor(int v, int h) {
-        if (IsEmpty(v, h)) return "-";
-        return chess_table[v][h]->GetColor();
-    }
-
-    std::string GetType(int v, int h) {
-        if (IsEmpty(v, h)) return "-";
-        return chess_table[v][h]->GetType();
-    }
-
-    bool Isinside(int v, int h) {
-        return 1 <= v && v <= 8 && 1 <= h && h <= 8;
-    }
-
-    bool CheckForCheck(int v, int h) {
-        //placeholder
-        return true;
-    }
-
-};
+#pragma once
+#include "generic.h"
 
 class Pawn : public Figure {
 private:
@@ -76,7 +7,7 @@ private:
 public:
     Pawn(int v, int h, std::string c) : Figure(v, h, c, "Pawn") {}
 
-    std::vector<std::pair<int, int>> PossibleMovement(Board* board) {
+    std::vector<std::pair<int, int>> PossibleMovement(Board* board, std::vector<Figure*> white_pieces, std::vector<Figure*> black_pieces) {
         std::vector<std::pair<int, int>> can_move;
         int move_delta = 1;
         if (color == "Black")
@@ -91,11 +22,17 @@ public:
             }
         }
         for (int campture_delta : {-1, 1}) {
-            if (!(board->IsEmpty(vertical + campture_delta, to_horizontal)) &&
+            if (!board->IsEmpty(vertical + campture_delta, to_horizontal) &&
                 board->Isinside(vertical + campture_delta, to_horizontal) &&
                 board->GetColor(vertical + campture_delta, to_horizontal) != color) {
                 can_move.push_back(std::pair(vertical + campture_delta, to_horizontal));
             } 
+        }
+        // TODO
+        std::vector<std::pair<int, int>> can_move_checked;
+        for (std::pair<int, int> move : can_move) {
+            if (!board->CheckForCheck(color))
+                can_move_checked.push_back(move);
         }
         /*
         if (!(board->IsEmpty(vertical - 1, to_horizontal)) &&
@@ -112,9 +49,9 @@ public:
         return can_move;
     }
 
-    bool CanMove(Board* board, int v, int h) {
-        std::vector<std::pair<int, int>> can_move = this->PossibleMovement(board);
-        std::pair<int, int> need = std::pair(v, h);
+    bool CanMove(Board* board, std::vector<Figure*> white_pieces, std::vector<Figure*> black_pieces, int end_v, int end_h) {
+        std::vector<std::pair<int, int>> can_move = this->PossibleMovement(board, white_pieces, black_pieces);
+        std::pair<int, int> need = std::pair(end_v, end_h);
         return std::find(can_move.begin(), can_move.end(), need) != can_move.end();
     }
 
