@@ -1,6 +1,8 @@
 #pragma once
 #include "global_config.h"
 
+class Board;
+
 class Figure {
 protected:
     int vertical = -1, horizontal = -1;
@@ -11,16 +13,12 @@ public:
         log("Figure of type " + figure_type + " was constructed");
     }
 
-    ~Figure() {
+    virtual ~Figure() {
         log("Figure of type " + figure_type + " was deconstructed");
     }
 
     std::pair<int, int> GetPosition() {
         return std::pair(vertical, horizontal);
-    }
-
-    std::vector<std::pair<int, int>> PossibleMovement() {
-        return {};
     }
 
     std::string GetColor() {
@@ -30,30 +28,41 @@ public:
     std::string GetType() {
         return figure_type;
     }
+
+    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) {
+        return {};
+    }
 };
 
 struct chess_move {
     std::string piece_type = "-";
     int start_v, start_h, end_v, end_h;
-    Figure* captured = nullptr;
+    std::shared_ptr<Figure> captured = nullptr;
 };
 
 class Board {
 private:
-    std::vector<std::vector<Figure*>> chess_table;
+    std::vector<std::vector<std::shared_ptr<Figure>>> chess_table;
     std::vector<chess_move> move_log;
     std::pair<int, int> white_king = std::pair(5, 1), black_king = std::pair(5, 8);
+    std::vector<std::shared_ptr<Figure>>* white_pieces;
+    std::vector<std::shared_ptr<Figure>>*  black_pieces;
 public:
-    Board() {
-        chess_table.resize(9, std::vector<Figure*>(9, nullptr));
+    Board(std::vector<std::shared_ptr<Figure>>* white, std::vector<std::shared_ptr<Figure>>* black) :
+          white_pieces(white), black_pieces(black) {
+        chess_table.resize(9, std::vector<std::shared_ptr<Figure>>(9, nullptr));
     }
 
-    void AddFigure(Figure* f, int v, int h) {
+    void AddFigure(std::shared_ptr<Figure> f, int v, int h) {
         chess_table[v][h] = f;
     }
 
     bool IsEmpty(int v, int h) {
         return chess_table[v][h] == nullptr;
+    }
+
+    std::shared_ptr<Figure> GetFigure(int v, int h) {
+        return chess_table[v][h];
     }
 
     std::string GetColor(int v, int h) {

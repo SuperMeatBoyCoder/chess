@@ -7,16 +7,19 @@ class Game {
 private:
     bool running = false;
     int move = 0;
-    Board board;
 
-    std::vector<Figure*> white_pieces, black_pieces;
+    std::vector<std::shared_ptr<Figure>> white_pieces, black_pieces;
+    Board* board;
 
     void CreateBoard() {
+        board = new Board(&white_pieces, &black_pieces);
         for (int i = 1; i <= 8; i++) {
-            white_pieces.push_back(new Pawn(i, 2, "White"));
-            board.AddFigure(white_pieces.back(), i, 2);
-            black_pieces.push_back(new Pawn(i, 7, "Black"));
-            board.AddFigure(black_pieces.back(), i, 7);
+            std::shared_ptr<Figure> white_pawn = std::make_shared<Pawn>(i, 2, "White");
+            white_pieces.emplace_back(white_pawn);
+            board->AddFigure(white_pawn, i, 2);
+            std::shared_ptr<Figure> black_pawn =  std::make_shared<Pawn>(i, 7, "Black");
+            black_pieces.push_back(black_pawn);
+            board->AddFigure(black_pawn, i, 7);
         }
     }
 
@@ -24,9 +27,11 @@ public:
     Game() {
         CreateBoard();
         log("Game was constructed");
+        std::cout << "Type 0 0 to exit\n";
     }
 
     ~Game() {
+        delete board;
         log("Game was deconstructed");
     }
 
@@ -34,13 +39,25 @@ public:
         for (int h = 8; h >= 1; h--) {
             std::string to_log; 
             for (int v = 1; v <= 8; v++) {
-                to_log += board.GetColor(v, h)[0];
-                to_log += board.GetType(v, h)[0];
+                to_log += board->GetColor(v, h)[0];
+                to_log += board->GetType(v, h)[0];
                 to_log += ' ';
             }
             log(to_log);
         }
-        running = false;
+        int v, h;
+        std::cout << "Choose a space: (two numbers):\n";
+        std::cin >> v >> h;
+        if (v == h && v == 0) {
+            running = false;
+            return;
+        }
+        if (board->IsEmpty(v, h)) std::cout << "No piece there!\n";
+        else {
+            std::shared_ptr<Figure> this_figure = board->GetFigure(v, h);
+            std::cout << "Possible moves:\n";
+            std::cout << this_figure->PossibleMovement(board) << '\n';
+        }
     }
 
     void Start() {

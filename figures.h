@@ -1,5 +1,5 @@
 #pragma once
-#include "generic.h"
+#include "base_classes.h"
 
 class Pawn : public Figure {
 private:
@@ -7,7 +7,7 @@ private:
 public:
     Pawn(int v, int h, std::string c) : Figure(v, h, c, "Pawn") {}
 
-    std::vector<std::pair<int, int>> PossibleMovement(Board* board, std::vector<Figure*> white_pieces, std::vector<Figure*> black_pieces) {
+    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
         std::vector<std::pair<int, int>> can_move;
         int move_delta = 1;
         if (color == "Black")
@@ -28,12 +28,15 @@ public:
                 can_move.push_back(std::pair(vertical + campture_delta, to_horizontal));
             } 
         }
-        // TODO
         std::vector<std::pair<int, int>> can_move_checked;
+        // TODO
+        /*
         for (std::pair<int, int> move : can_move) {
             if (!board->CheckForCheck(color))
                 can_move_checked.push_back(move);
         }
+        */
+        can_move_checked = can_move;
         /*
         if (!(board->IsEmpty(vertical - 1, to_horizontal)) &&
             board->Isinside(vertical - 1, to_horizontal) &&
@@ -46,13 +49,12 @@ public:
             can_move.push_back(std::pair(vertical + 1, to_horizontal));
         }
         */
-        return can_move;
+        return can_move_checked;
     }
 
     bool CanMove(Board* board, std::vector<Figure*> white_pieces, std::vector<Figure*> black_pieces, int end_v, int end_h) {
-        std::vector<std::pair<int, int>> can_move = this->PossibleMovement(board, white_pieces, black_pieces);
+        std::vector<std::pair<int, int>> can_move = this->PossibleMovement(board);
         std::pair<int, int> need = std::pair(end_v, end_h);
         return std::find(can_move.begin(), can_move.end(), need) != can_move.end();
     }
-
 };
