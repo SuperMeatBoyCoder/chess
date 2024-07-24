@@ -12,6 +12,7 @@ private:
         {5, 1, 'W', "King"}, {5, 8, 'B', "King"},
         {2, 1, 'W', "Night"}, {7, 1, 'W', "Night"}, {2, 8, 'B', "Night"}, {7, 8, 'B', "Night"},
         {3, 1, 'W', "Bishop"}, {6, 1, 'W', "Bishop"}, {3, 8, 'B', "Bishop"}, {6, 8, 'B', "Bishop"},
+        {1, 1, 'W', "Rook"}, {8, 1, 'W', "Rook"}, {1, 8, 'B', "Rook"}, {8, 8, 'B', "Rook"},
         };
 
     bool running = false;
@@ -36,6 +37,9 @@ private:
                     break;
                 case 'B':
                     piece = std::make_shared<Bishop>(raw_piece);
+                    break;
+                case 'R':
+                    piece = std::make_shared<Rook>(raw_piece);
                     break;
                 default:
                     throw "InvalidPiece";
