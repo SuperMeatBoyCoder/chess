@@ -52,6 +52,7 @@ private:
         }
     }
 
+    // most heavy code
     std::vector<std::pair<int, int>> PossibleMovementChecked(std::shared_ptr<ChessPiece> moving_piece) {
         int piece_v, piece_h;
         std::tie(piece_v, piece_h) = moving_piece->GetPosition();
@@ -69,7 +70,7 @@ public:
     Game() {
         CreateBoard();
         file_log << "Game was constructed\n";
-        std::cout << "Type 0 0 to exit\n";
+        std::cout << "Type 0 to exit\n";
     }
 
     ~Game() {
