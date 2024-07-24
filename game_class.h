@@ -138,13 +138,3 @@ public:
         return running;
     }
 };
-
-Game chess_game;
-
-int main() {
-    chess_game.Start();
-    while (chess_game.IsRunning()) {
-        chess_game.Update();
-    }
-    return 0;
-}
