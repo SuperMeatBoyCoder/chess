@@ -21,34 +21,19 @@ public:
                 can_move.push_back(std::pair(vertical, to_horizontal + move_delta));
             }
         }
-        for (int campture_delta : {-1, 1}) {
-            if (!board->IsEmpty(vertical + campture_delta, to_horizontal) &&
-                board->Isinside(vertical + campture_delta, to_horizontal) &&
-                board->GetColor(vertical + campture_delta, to_horizontal) != color) {
-                can_move.push_back(std::pair(vertical + campture_delta, to_horizontal));
+        for (int capture_delta : {-1, 1}) {
+            if (board->Isinside(vertical + capture_delta, to_horizontal) &&
+                !board->IsEmpty(vertical + capture_delta, to_horizontal) &&
+                board->GetColor(vertical + capture_delta, to_horizontal) != color) {
+                can_move.push_back(std::pair(vertical + capture_delta, to_horizontal));
             } 
         }
         std::vector<std::pair<int, int>> can_move_checked;
-        // TODO
-        /*
         for (std::pair<int, int> move : can_move) {
             if (!board->CheckForCheck(color))
                 can_move_checked.push_back(move);
         }
-        */
-        can_move_checked = can_move;
-        /*
-        if (!(board->IsEmpty(vertical - 1, to_horizontal)) &&
-            board->Isinside(vertical - 1, to_horizontal) &&
-            board->GetColor(vertical - 1, to_horizontal) != color) {
-            can_move.push_back(std::pair(vertical - 1, to_horizontal));
-        }
-        if (!(board->IsEmpty(vertical + 1, to_horizontal)) &&
-            board->Isinside(vertical + 1, to_horizontal) &&
-            board->GetColor(vertical + 1, to_horizontal) != color) {
-            can_move.push_back(std::pair(vertical + 1, to_horizontal));
-        }
-        */
+
         return can_move_checked;
     }
 

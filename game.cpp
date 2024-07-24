@@ -16,10 +16,10 @@ private:
         for (int i = 1; i <= 8; i++) {
             std::shared_ptr<Figure> white_pawn = std::make_shared<Pawn>(i, 2, "White");
             white_pieces.emplace_back(white_pawn);
-            board->AddFigure(white_pawn, i, 2);
+            board->AddFigure(white_pawn);
             std::shared_ptr<Figure> black_pawn =  std::make_shared<Pawn>(i, 7, "Black");
             black_pieces.push_back(black_pawn);
-            board->AddFigure(black_pawn, i, 7);
+            board->AddFigure(black_pawn);
         }
     }
 
@@ -51,6 +51,7 @@ public:
         }
         if (!board->Isinside(v, h)) {
             std::cout << "That's some big expectatitons!\n";
+            return;
         }
         if (board->IsEmpty(v, h)) std::cout << "No piece there!\n";
         else {

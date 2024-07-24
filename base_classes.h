@@ -53,7 +53,9 @@ public:
         chess_table.resize(9, std::vector<std::shared_ptr<Figure>>(9, nullptr));
     }
 
-    void AddFigure(std::shared_ptr<Figure> f, int v, int h) {
+    void AddFigure(std::shared_ptr<Figure> f) {
+        int v, h;
+        std::tie(v, h) = f->GetPosition();
         chess_table[v][h] = f;
     }
 
@@ -79,6 +81,7 @@ public:
         return 1 <= v && v <= 8 && 1 <= h && h <= 8;
     }
 
+    //TODOs
     bool CheckForCheck(std::string king_color) {
         //placeholder
         return false;
