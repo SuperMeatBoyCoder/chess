@@ -57,6 +57,10 @@ public:
         return Isinside(v, h) && !IsEmpty(v, h) && GetColor(v, h) != color;
     }
 
+    bool isMovableOrCapturable(int v, int h, char color) {
+        return Isinside(v, h) && (IsEmpty(v, h) || GetColor(v, h) != color);
+    }
+
     bool CheckForCheck(char king_color) {
         int king_v, king_h;
         if (king_color == 'B') {
