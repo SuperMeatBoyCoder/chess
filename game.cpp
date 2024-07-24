@@ -1,4 +1,5 @@
 #include "global_config.h"
+#include "board.h"
 #include "figures.h"
 
 int move = 0;
@@ -6,12 +7,13 @@ int move = 0;
 class Game {
 private:
     bool running = false;
-    int move = 0;
+    int move = 1;
 
     std::vector<std::shared_ptr<Figure>> white_pieces, black_pieces;
     Board* board;
 
     void CreateBoard() {
+        // verticals is used first due to traditional notation in chess
         board = new Board(&white_pieces, &black_pieces);
         for (int i = 1; i <= 8; i++) {
             std::shared_ptr<Figure> white_pawn = std::make_shared<Pawn>(i, 2, "White");
@@ -21,6 +23,12 @@ private:
             black_pieces.push_back(black_pawn);
             board->AddFigure(black_pawn);
         }
+        std::shared_ptr<Figure> white_king = std::make_shared<King>(5, 1, "White");
+        white_pieces.emplace_back(white_king);
+        board->AddFigure(white_king);
+        std::shared_ptr<Figure> black_king = std::make_shared<King>(5, 8, "Black");
+        white_pieces.emplace_back(black_king);
+        board->AddFigure(black_king);
     }
 
 public:
@@ -42,23 +50,29 @@ public:
             }
             std::cout << '\n';
         }
-        int v, h;
+        int input_v, input_h;
         std::cout << "Choose a space: (two numbers):\n";
-        std::cin >> v >> h;
-        if (v == h && v == 0) {
+        std::cin >> input_v >> input_h;
+        if (input_v == input_h && input_v == 0) {
             running = false;
             return;
         }
-        if (!board->Isinside(v, h)) {
-            std::cout << "That's some big expectatitons!\n";
+        if (board->IsEmpty(input_v, input_h)){
+            std::cout << "No piece there!\n";
             return;
         }
-        if (board->IsEmpty(v, h)) std::cout << "No piece there!\n";
-        else {
-            std::shared_ptr<Figure> this_figure = board->GetFigure(v, h);
-            std::cout << "Possible moves:\n";
-            std::cout << this_figure->PossibleMovement(board) << '\n';
+        std::shared_ptr<Figure> this_figure = board->GetFigure(input_v, input_h);
+        std::cout << "Possible moves:\n";
+        std::vector<std::pair<int, int>> can_move = this_figure->PossibleMovement(board);
+        std::cout << can_move << '\n';
+        std::cout << "Choose move (two numbers):\n";
+        std::cin >> input_v >> input_h;
+        if (std::find(can_move.begin(), can_move.end(), std::pair(input_v, input_h)) == can_move.end()) {
+            std::cout << "No such move!\n";
+            return;
         }
+        board->Move(this_figure, input_v, input_h);
+        move++;
     }
 
     void Start() {
