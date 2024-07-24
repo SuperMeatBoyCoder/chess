@@ -106,8 +106,12 @@ public:
             return;
         }
         std::shared_ptr<ChessPiece> this_piece = board->GetFigure(input_v, input_h);
-        std::cout << "Possible moves:\n";
         std::vector<std::pair<int, int>> can_move = PossibleMovementChecked(this_piece);
+        if (can_move.empty()) {
+            std::cout << "This piece can't move!\n";
+            return;
+        }
+        std::cout << "Possible moves:\n";
         for (std::pair<int, int> move : can_move) {
             std::cout << char('a'+ move.first - 1) << move.second << ' ';
         }
