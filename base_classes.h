@@ -10,11 +10,11 @@ protected:
 public:
     Figure(int v, int h, std::string c, std::string f_type) :
            vertical(v), horizontal(h), color(c), figure_type(f_type) {
-        log("Figure of type " + figure_type + " was constructed");
+        file_log << "Figure of type " + figure_type + " was constructed\n";
     }
 
     virtual ~Figure() {
-        log("Figure of type " + figure_type + " was deconstructed");
+        file_log << "Figure of type " + figure_type + " was deconstructed\n";
     }
 
     std::pair<int, int> GetPosition() {

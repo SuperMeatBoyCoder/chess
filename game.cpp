@@ -26,24 +26,21 @@ private:
 public:
     Game() {
         CreateBoard();
-        log("Game was constructed");
+        file_log << "Game was constructed\n";
         std::cout << "Type 0 0 to exit\n";
     }
 
     ~Game() {
         delete board;
-        log("Game was deconstructed");
+        file_log << "Game was deconstructed\n";
     }
 
     void Update() {
         for (int h = 8; h >= 1; h--) {
-            std::string to_log; 
             for (int v = 1; v <= 8; v++) {
-                to_log += board->GetColor(v, h)[0];
-                to_log += board->GetType(v, h)[0];
-                to_log += ' ';
+                std::cout << board->GetColor(v, h)[0] << board->GetType(v, h)[0] << ' ';
             }
-            log(to_log);
+            std::cout << '\n';
         }
         int v, h;
         std::cout << "Choose a space: (two numbers):\n";
@@ -51,6 +48,9 @@ public:
         if (v == h && v == 0) {
             running = false;
             return;
+        }
+        if (!board->Isinside(v, h)) {
+            std::cout << "That's some big expectatitons!\n";
         }
         if (board->IsEmpty(v, h)) std::cout << "No piece there!\n";
         else {

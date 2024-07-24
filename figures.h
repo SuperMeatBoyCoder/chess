@@ -52,7 +52,7 @@ public:
         return can_move_checked;
     }
 
-    bool CanMove(Board* board, std::vector<Figure*> white_pieces, std::vector<Figure*> black_pieces, int end_v, int end_h) {
+    bool CanMove(Board* board, int end_v, int end_h) {
         std::vector<std::pair<int, int>> can_move = this->PossibleMovement(board);
         std::pair<int, int> need = std::pair(end_v, end_h);
         return std::find(can_move.begin(), can_move.end(), need) != can_move.end();
