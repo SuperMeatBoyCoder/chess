@@ -22,7 +22,7 @@ public:
         std::tie(v, h) = new_piece->GetPosition();
         chess_table[v][h] = new_piece;
         if (new_piece->figure_type == "King") {
-            if (new_piece->color == "White")
+            if (new_piece->color == 'W')
                 white_king = new_piece;
             else
                 black_king = new_piece;
@@ -30,7 +30,6 @@ public:
     }
 
     bool IsEmpty(int v, int h) {
-        if (!Isinside(v, h)) return true;
         return chess_table[v][h] == nullptr;
     }
 
@@ -38,13 +37,11 @@ public:
         return chess_table[v][h];
     }
 
-    std::string GetColor(int v, int h) {
-        if (IsEmpty(v, h)) return "-";
+    char GetColor(int v, int h) {
         return chess_table[v][h]->color;
     }
 
     std::string GetType(int v, int h) {
-        if (IsEmpty(v, h)) return "-";
         return chess_table[v][h]->figure_type;
     }
 
@@ -52,10 +49,17 @@ public:
         return 1 <= v && v <= 8 && 1 <= h && h <= 8;
     }
 
-    bool CheckForCheck(std::string king_color) {
+    bool IsMovable(int v, int h) {
+        return Isinside(v, h) && IsEmpty(v, h);
+    }
+
+    bool IsCapturable(int v, int h, char color) {
+        return Isinside(v, h) && !IsEmpty(v, h) && GetColor(v, h) != color;
+    }
+
+    bool CheckForCheck(char king_color) {
         int king_v, king_h;
-        std::string opposite_color;
-        if (king_color == "Black") {
+        if (king_color == 'B') {
             std::tie(king_v, king_h) = black_king->GetPosition();
         }
         else {

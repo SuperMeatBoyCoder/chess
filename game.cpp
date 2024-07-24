@@ -5,12 +5,12 @@
 class Game {
 private:
     const std::vector<piece_config> default_board_config = {
-        {1, 2, "White", "Pawn"}, {2, 2, "White", "Pawn"}, {3, 2, "White", "Pawn"}, {4, 2, "White", "Pawn"},
-        {5, 2, "White", "Pawn"}, {6, 2, "White", "Pawn"}, {7, 2, "White", "Pawn"}, {8, 2, "White", "Pawn"},
-        {1, 7, "Black", "Pawn"}, {2, 7, "Black", "Pawn"}, {3, 7, "Black", "Pawn"}, {4, 7, "Black", "Pawn"},
-        {5, 7, "Black", "Pawn"}, {6, 7, "Black", "Pawn"}, {7, 7, "Black", "Pawn"}, {8, 7, "Black", "Pawn"},
-        {5, 1, "White", "King"}, {5, 8, "Black", "King"},
-        {2, 1, "White", "Night"}, {7, 1, "White", "Night"}, {2, 8, "Black", "Night"}, {7, 8, "Black", "Night"},
+        {1, 2, 'W', "Pawn"}, {2, 2, 'W', "Pawn"}, {3, 2, 'W', "Pawn"}, {4, 2, 'W', "Pawn"},
+        {5, 2, 'W', "Pawn"}, {6, 2, 'W', "Pawn"}, {7, 2, 'W', "Pawn"}, {8, 2, 'W', "Pawn"},
+        {1, 7, 'B', "Pawn"}, {2, 7, 'B', "Pawn"}, {3, 7, 'B', "Pawn"}, {4, 7, 'B', "Pawn"},
+        {5, 7, 'B', "Pawn"}, {6, 7, 'B', "Pawn"}, {7, 7, 'B', "Pawn"}, {8, 7, 'B', "Pawn"},
+        {5, 1, 'W', "King"}, {5, 8, 'B', "King"},
+        {2, 1, 'W', "Night"}, {7, 1, 'W', "Night"}, {2, 8, 'B', "Night"}, {7, 8, 'B', "Night"},
         };
 
     bool running = false;
@@ -68,7 +68,10 @@ public:
     void Update() {
         for (int h = 8; h >= 1; h--) {
             for (int v = 1; v <= 8; v++) {
-                std::cout << board->GetColor(v, h)[0] << board->GetType(v, h)[0] << ' ';
+                if (!board->IsEmpty(v, h))
+                    std::cout << board->GetColor(v, h) << board->GetType(v, h)[0] << ' ';
+                else
+                    std::cout << "-- ";
             }
             std::cout << '\n';
         }
@@ -84,9 +87,9 @@ public:
             std::cout << "No piece there!\n";
             return;
         }
-        std::string color = board->GetColor(input_v, input_h);
-        if ((color == "White" && move % 2 == 0) ||
-            (color == "Black" && move % 2 == 1)){
+        char color = board->GetColor(input_v, input_h);
+        if ((color == 'W' && move % 2 == 0) ||
+            (color == 'B' && move % 2 == 1)){
             std::cout << "it's not your turn!\n";
             return;
         }

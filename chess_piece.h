@@ -5,14 +5,16 @@ class Board;
 
 struct piece_config {
     int vertical, horizontal;
-    std::string color, figure_type;
+    char color;
+    std::string figure_type;
 };
 
 class ChessPiece {
 protected:
     int vertical = -1, horizontal = -1;
 public:
-    const std::string figure_type, color;
+    const std::string figure_type;
+    char color;
     int times_moved = 0;
 
     ChessPiece(piece_config raw_piece) :
