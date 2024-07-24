@@ -26,6 +26,10 @@ public:
     std::string GetColor() {
         return color;
     }
+    
+    std::string GetType() {
+        return figure_type;
+    }
 };
 
 class Board {
@@ -37,12 +41,22 @@ public:
         chess_table.resize(9, std::vector<Figure*>(9, nullptr));
     }
 
+    void AddFigure(Figure* f, int v, int h) {
+        chess_table[v][h] = f;
+    }
+
     bool IsEmpty(int v, int h) {
         return chess_table[v][h] == nullptr;
     }
 
     std::string GetColor(int v, int h) {
+        if (IsEmpty(v, h)) return "-";
         return chess_table[v][h]->GetColor();
+    }
+
+    std::string GetType(int v, int h) {
+        if (IsEmpty(v, h)) return "-";
+        return chess_table[v][h]->GetType();
     }
 
     bool Isinside(int v, int h) {
@@ -53,6 +67,7 @@ public:
         //placeholder
         return true;
     }
+
 };
 
 class Pawn : public Figure {
@@ -64,7 +79,7 @@ public:
     std::vector<std::pair<int, int>> PossibleMovement(Board* board) {
         std::vector<std::pair<int, int>> can_move;
         int move_delta = 1;
-        if (color == "black")
+        if (color == "Black")
             move_delta = -1;
         int to_horizontal = horizontal + move_delta;
 
@@ -102,4 +117,5 @@ public:
         std::pair<int, int> need = std::pair(v, h);
         return std::find(can_move.begin(), can_move.end(), need) != can_move.end();
     }
+
 };

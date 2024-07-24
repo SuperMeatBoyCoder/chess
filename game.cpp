@@ -21,8 +21,10 @@ private:
 
     void CreateBoard() {
         for (int i = 1; i <= 8; i++) {
-            white_pieces.pawns.push_back(new Pawn(i, 2, "white"));
-            black_pieces.pawns.push_back(new Pawn(i, 7, "black"));
+            white_pieces.pawns.push_back(new Pawn(i, 2, "White"));
+            board.AddFigure(white_pieces.pawns.back(), i, 2);
+            black_pieces.pawns.push_back(new Pawn(i, 7, "Black"));
+            board.AddFigure(black_pieces.pawns.back(), i, 7);
         }
     }
 
@@ -41,6 +43,15 @@ public:
     }
 
     void Update() {
+        for (int h = 8; h >= 1; h--) {
+            std::string to_log; 
+            for (int v = 1; v <= 8; v++) {
+                to_log += board.GetColor(v, h)[0];
+                to_log += board.GetType(v, h)[0];
+                to_log += ' ';
+            }
+            log(to_log);
+        }
         running = false;
     }
 
