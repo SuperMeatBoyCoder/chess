@@ -2,8 +2,6 @@
 #include "board.h"
 #include "pieces.h"
 
-int move = 0;
-
 class Game {
 private:
     bool running = false;
@@ -50,9 +48,10 @@ public:
             }
             std::cout << '\n';
         }
-        int input_v, input_h;
-        std::cout << "Choose a piece: (two numbers):\n";
-        std::cin >> input_v >> input_h;
+        std::cout << "Choose a piece: (chess notation):\n";
+        std::string notation;
+        std::cin >> notation;
+        int input_v = notation[0] - 'a' + 1, input_h = notation[1] - '0';
         if (input_v == input_h && input_v == 0) {
             running = false;
             return;
@@ -70,9 +69,12 @@ public:
         std::shared_ptr<ChessPiece> this_figure = board->GetFigure(input_v, input_h);
         std::cout << "Possible moves:\n";
         std::vector<std::pair<int, int>> can_move = this_figure->PossibleMovement(board);
-        std::cout << can_move << '\n';
-        std::cout << "Choose move (two numbers):\n";
-        std::cin >> input_v >> input_h;
+        for (std::pair<int, int> move : can_move) {
+            std::cout << char('a'+ move.first - 1) << move.second << ' ';
+        }
+        std::cout << "\nChoose move (chess notation):\n";
+        std::cin >> notation;
+        input_v = notation[0] - 'a' + 1, input_h = notation[1] - '0';
         if (std::find(can_move.begin(), can_move.end(), std::pair(input_v, input_h)) == can_move.end()) {
             std::cout << "No such move!\n";
             return;
