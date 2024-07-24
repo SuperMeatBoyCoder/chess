@@ -167,3 +167,42 @@ public:
         return to_v == end_v && to_h == end_h;
     }
 };
+
+class Queen : public ChessPiece {
+public:
+    using ChessPiece::ChessPiece;
+    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
+        std::vector<std::pair<int, int>> can_move;
+        int to_v, to_h;
+        for (int v_delta : {-1, 0, 1}) {
+            for (int h_delta : {-1, 0, 1}) {
+                to_v = vertical + v_delta;
+                to_h = horizontal + h_delta;
+                while (board->IsMovable(to_v, to_h)) {
+                    can_move.push_back(std::pair(to_v, to_h));
+                    to_v += v_delta;
+                    to_h += h_delta;
+                }
+                if (board->IsCapturable(to_v, to_h, color))
+                    can_move.push_back(std::pair(to_v, to_h));
+            }
+        }
+        return can_move;
+    }
+
+    virtual bool IsChecking(Board* board, int end_v, int end_h) override {
+        int to_v = vertical, to_h = horizontal;
+        int v_delta = 0, h_delta = 0;
+        if (to_v < end_v) v_delta = 1;
+        else if (to_v > end_v) v_delta = -1;
+        if (to_h < end_h) h_delta = 1;
+        else if (to_h > end_h) h_delta = -1;
+        to_v += v_delta;
+        to_h += h_delta;
+        while(to_v != end_v && to_h != end_h && board->IsMovable(to_v, to_h)) {
+            to_v += v_delta;
+            to_h += h_delta;
+        }
+        return to_v == end_v && to_h == end_h;
+    }
+};

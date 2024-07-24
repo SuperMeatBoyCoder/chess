@@ -9,10 +9,11 @@ private:
         {5, 2, 'W', "Pawn"}, {6, 2, 'W', "Pawn"}, {7, 2, 'W', "Pawn"}, {8, 2, 'W', "Pawn"},
         {1, 7, 'B', "Pawn"}, {2, 7, 'B', "Pawn"}, {3, 7, 'B', "Pawn"}, {4, 7, 'B', "Pawn"},
         {5, 7, 'B', "Pawn"}, {6, 7, 'B', "Pawn"}, {7, 7, 'B', "Pawn"}, {8, 7, 'B', "Pawn"},
-        {5, 1, 'W', "King"}, {5, 8, 'B', "King"},
         {2, 1, 'W', "Night"}, {7, 1, 'W', "Night"}, {2, 8, 'B', "Night"}, {7, 8, 'B', "Night"},
         {3, 1, 'W', "Bishop"}, {6, 1, 'W', "Bishop"}, {3, 8, 'B', "Bishop"}, {6, 8, 'B', "Bishop"},
         {1, 1, 'W', "Rook"}, {8, 1, 'W', "Rook"}, {1, 8, 'B', "Rook"}, {8, 8, 'B', "Rook"},
+        {4, 1, 'W', "Queen"}, {4, 8, 'B', "Queen"},
+        {5, 1, 'W', "King"}, {5, 8, 'B', "King"},
         };
 
     bool running = false;
@@ -40,6 +41,9 @@ private:
                     break;
                 case 'R':
                     piece = std::make_shared<Rook>(raw_piece);
+                    break;
+                case 'Q':
+                    piece = std::make_shared<Queen>(raw_piece);
                     break;
                 default:
                     throw "InvalidPiece";
