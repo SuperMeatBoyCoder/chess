@@ -1,6 +1,6 @@
 #include "global_config.h"
 #include "board.h"
-#include "figures.h"
+#include "pieces.h"
 
 int move = 0;
 
@@ -9,26 +9,26 @@ private:
     bool running = false;
     int move = 1;
 
-    std::vector<std::shared_ptr<Figure>> white_pieces, black_pieces;
+    std::vector<std::shared_ptr<ChessPiece>> white_pieces, black_pieces;
     Board* board;
 
     void CreateBoard() {
         // verticals is used first due to traditional notation in chess
-        board = new Board(&white_pieces, &black_pieces);
+        std::shared_ptr<ChessPiece> white_king = std::make_shared<King>(5, 1, "White");
+        white_pieces.emplace_back(white_king);
+        std::shared_ptr<ChessPiece> black_king = std::make_shared<King>(5, 8, "Black");
+        black_pieces.emplace_back(black_king);
+        board = new Board(&white_pieces, &black_pieces, white_king, black_king);
+        board->AddFigure(white_king);
+        board->AddFigure(black_king);
         for (int i = 1; i <= 8; i++) {
-            std::shared_ptr<Figure> white_pawn = std::make_shared<Pawn>(i, 2, "White");
+            std::shared_ptr<ChessPiece> white_pawn = std::make_shared<Pawn>(i, 2, "White");
             white_pieces.emplace_back(white_pawn);
             board->AddFigure(white_pawn);
-            std::shared_ptr<Figure> black_pawn =  std::make_shared<Pawn>(i, 7, "Black");
+            std::shared_ptr<ChessPiece> black_pawn =  std::make_shared<Pawn>(i, 7, "Black");
             black_pieces.push_back(black_pawn);
             board->AddFigure(black_pawn);
         }
-        std::shared_ptr<Figure> white_king = std::make_shared<King>(5, 1, "White");
-        white_pieces.emplace_back(white_king);
-        board->AddFigure(white_king);
-        std::shared_ptr<Figure> black_king = std::make_shared<King>(5, 8, "Black");
-        white_pieces.emplace_back(black_king);
-        board->AddFigure(black_king);
     }
 
 public:
@@ -51,7 +51,7 @@ public:
             std::cout << '\n';
         }
         int input_v, input_h;
-        std::cout << "Choose a space: (two numbers):\n";
+        std::cout << "Choose a piece: (two numbers):\n";
         std::cin >> input_v >> input_h;
         if (input_v == input_h && input_v == 0) {
             running = false;
@@ -61,7 +61,13 @@ public:
             std::cout << "No piece there!\n";
             return;
         }
-        std::shared_ptr<Figure> this_figure = board->GetFigure(input_v, input_h);
+        std::string color = board->GetColor(input_v, input_h);
+        if ((color == "White" && move % 2 == 0) ||
+            (color == "Black" && move % 2 == 1)){
+            std::cout << "it's not your turn!\n";
+            return;
+        }
+        std::shared_ptr<ChessPiece> this_figure = board->GetFigure(input_v, input_h);
         std::cout << "Possible moves:\n";
         std::vector<std::pair<int, int>> can_move = this_figure->PossibleMovement(board);
         std::cout << can_move << '\n';

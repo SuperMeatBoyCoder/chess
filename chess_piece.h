@@ -3,19 +3,21 @@
 
 class Board;
 
-class Figure {
+class ChessPiece {
 protected:
     int vertical = -1, horizontal = -1;
     std::string figure_type = "-", color;
-    bool captured = false;
 public:
-    Figure(int v, int h, std::string c, std::string f_type) :
+    bool captured = false;
+    int times_moved = 0;
+
+    ChessPiece(int v, int h, std::string c, std::string f_type) :
            vertical(v), horizontal(h), color(c), figure_type(f_type) {
-        file_log << "Figure of type " + figure_type + " was constructed\n";
+        file_log << "Piece of type " + figure_type + " was constructed\n";
     }
 
-    virtual ~Figure() {
-        file_log << "Figure of type " + figure_type + " was deconstructed\n";
+    virtual ~ChessPiece() {
+        file_log << "Piece of type " + figure_type + " was deconstructed\n";
     }
 
     std::pair<int, int> GetPosition() {
@@ -33,10 +35,6 @@ public:
     
     std::string GetType() {
         return figure_type;
-    }
-
-    void SetCapture(bool cap) {
-        captured = cap;
     }
 
     virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) {
