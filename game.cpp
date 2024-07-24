@@ -21,8 +21,8 @@ private:
 
     void CreateBoard() {
         for (int i = 1; i <= 8; i++) {
-            white_pieces.pawns.push_back(new Pawn(&board, i, 2, "white"));
-            black_pieces.pawns.push_back(new Pawn(&board, i, 7, "black"));
+            white_pieces.pawns.push_back(new Pawn(i, 2, "white"));
+            black_pieces.pawns.push_back(new Pawn(i, 7, "black"));
         }
     }
 
