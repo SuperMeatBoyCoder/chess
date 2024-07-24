@@ -3,16 +3,21 @@
 
 class Board;
 
+struct piece_config {
+    int vertical, horizontal;
+    std::string color, figure_type;
+};
+
 class ChessPiece {
 protected:
     int vertical = -1, horizontal = -1;
-    std::string figure_type = "-", color;
 public:
+    const std::string figure_type, color;
     bool captured = false;
     int times_moved = 0;
 
-    ChessPiece(int v, int h, std::string c, std::string f_type) :
-           vertical(v), horizontal(h), color(c), figure_type(f_type) {
+    ChessPiece(piece_config raw_piece) :
+           vertical(raw_piece.vertical), horizontal(raw_piece.horizontal), color(raw_piece.color), figure_type(raw_piece.figure_type) {
         file_log << "Piece of type " + figure_type + " was constructed\n";
     }
 
@@ -27,14 +32,6 @@ public:
     void UpdatePosition(int v, int h) {
         vertical = v;
         horizontal = h;
-    }
-
-    std::string GetColor() {
-        return color;
-    }
-    
-    std::string GetType() {
-        return figure_type;
     }
 
     virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) {
