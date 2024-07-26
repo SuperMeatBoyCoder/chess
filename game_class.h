@@ -18,10 +18,10 @@ private:
 
     bool running = false;
     int move = 1;
-    Board board;
+    Board* board = new Board();
 
     void CreateBoard() {
-        for (piece_info raw_piece : default_board_config) {
+        for (const piece_info raw_piece : default_board_config) {
             std::shared_ptr<ChessPiece> piece;
             switch (raw_piece.figure_type) {
                 case 'K':
@@ -45,20 +45,20 @@ private:
                 default:
                     throw "InvalidPiece";
             }
-            board.AddFigure(piece);
+            board->AddFigure(piece);
         }
     }
 
     // most heavy code
-    std::vector<std::pair<int, int>> PossibleMovementChecked(std::shared_ptr<ChessPiece> moving_piece) {
+    std::vector<std::pair<int, int>> PossibleMovementChecked(const std::shared_ptr<ChessPiece> moving_piece) {
         int piece_v, piece_h;
         std::tie(piece_v, piece_h) = moving_piece->GetPosition();
         std::vector<std::pair<int, int>> can_move_checked;
         for (std::pair<int, int> move : moving_piece->PossibleMovement(board)) {
-            board.Move(piece_v, piece_h, move.first, move.second);
-            if (!board.CheckForCheck(moving_piece->GetColor()))
+            board->Move(piece_v, piece_h, move.first, move.second);
+            if (!board->CheckForCheck(moving_piece->GetColor()))
                 can_move_checked.push_back(move);
-            board.Revert();
+            board->Revert();
         }
         return can_move_checked;
     }
@@ -66,19 +66,20 @@ private:
 public:
     Game() {
         CreateBoard();
-        file_log << "Game was constructed\n";
+        file_log << "Game was constructed" << std::endl;
         std::cout << "Type 0 to exit\n";
     }
 
     ~Game() {
-        file_log << "Game was deconstructed\n";
+        delete board;
+        file_log << "Game was deconstructed" << std::endl;
     }
 
     void Update() {
         for (int h = 8; h >= 1; h--) {
             for (int v = 1; v <= 8; v++) {
-                if (!board.IsEmpty(v, h))
-                    std::cout << board.GetColor(v, h) << board.GetType(v, h) << ' ';
+                if (!board->IsEmpty(v, h))
+                    std::cout << board->GetColor(v, h) << board->GetType(v, h) << ' ';
                 else
                     std::cout << "-- ";
             }
@@ -92,18 +93,22 @@ public:
             return;
         }
         int input_v = notation[0] - 'a' + 1, input_h = notation[1] - '0';
-        if (board.IsEmpty(input_v, input_h)){
+        if (!board->Isinside(input_v, input_h)){
+            std::cout << "No such place exist!\n";
+            return;
+        }
+        if (board->IsEmpty(input_v, input_h)){
             std::cout << "No piece there!\n";
             return;
         }
-        char color = board.GetColor(input_v, input_h);
+        char color = board->GetColor(input_v, input_h);
         if ((color == 'W' && move % 2 == 0) ||
             (color == 'B' && move % 2 == 1)){
             std::cout << "it's not your turn!\n";
             return;
         }
-        std::shared_ptr<ChessPiece> this_piece = board.GetFigurePtr(input_v, input_h);
-        std::vector<std::pair<int, int>> can_move = PossibleMovementChecked(this_piece);
+        const std::shared_ptr<ChessPiece> this_piece = board->GetFigurePtr(input_v, input_h);
+        const std::vector<std::pair<int, int>> can_move = PossibleMovementChecked(this_piece);
         if (can_move.empty()) {
             std::cout << "This piece can't move!\n";
             return;
@@ -123,7 +128,7 @@ public:
             std::cout << "No such move!\n";
             return;
         }
-        board.Move(this_piece, input_v, input_h);
+        board->Move(this_piece, input_v, input_h);
         move++;
     }
 

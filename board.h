@@ -9,6 +9,11 @@ private:
 public:
     Board() {
         chess_table.resize(9, std::vector<std::shared_ptr<ChessPiece>>(9, nullptr));
+        file_log << "Board was constructed\n";
+    }
+    
+    ~Board() {
+        file_log << "Board was deconstructed\n";
     }
 
     void AddFigure(std::shared_ptr<ChessPiece> new_piece) {
@@ -69,7 +74,7 @@ public:
         }
         for (int v = 1; v <= 8; v++) {
             for (int h = 1; h <= 8; h++) {
-                if (!IsEmpty(v, h) && chess_table[v][h]->GetColor() != king_color && chess_table[v][h]->IsChecking(*this, king_v, king_h))
+                if (!IsEmpty(v, h) && chess_table[v][h]->GetColor() != king_color && chess_table[v][h]->IsChecking(this, king_v, king_h))
                     return true;
             }
         }
