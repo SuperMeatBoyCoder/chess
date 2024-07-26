@@ -4,16 +4,16 @@
 
 class Game {
 private:
-    const std::vector<piece_config> default_board_config = {
-        {1, 2, 'W', "Pawn"}, {2, 2, 'W', "Pawn"}, {3, 2, 'W', "Pawn"}, {4, 2, 'W', "Pawn"},
-        {5, 2, 'W', "Pawn"}, {6, 2, 'W', "Pawn"}, {7, 2, 'W', "Pawn"}, {8, 2, 'W', "Pawn"},
-        {1, 7, 'B', "Pawn"}, {2, 7, 'B', "Pawn"}, {3, 7, 'B', "Pawn"}, {4, 7, 'B', "Pawn"},
-        {5, 7, 'B', "Pawn"}, {6, 7, 'B', "Pawn"}, {7, 7, 'B', "Pawn"}, {8, 7, 'B', "Pawn"},
-        {2, 1, 'W', "Night"}, {7, 1, 'W', "Night"}, {2, 8, 'B', "Night"}, {7, 8, 'B', "Night"},
-        {3, 1, 'W', "Bishop"}, {6, 1, 'W', "Bishop"}, {3, 8, 'B', "Bishop"}, {6, 8, 'B', "Bishop"},
-        {1, 1, 'W', "Rook"}, {8, 1, 'W', "Rook"}, {1, 8, 'B', "Rook"}, {8, 8, 'B', "Rook"},
-        {4, 1, 'W', "Queen"}, {4, 8, 'B', "Queen"},
-        {5, 1, 'W', "King"}, {5, 8, 'B', "King"},
+    const std::vector<piece_info> default_board_config = {
+        {1, 2, 'W', 'P'}, {2, 2, 'W', 'P'}, {3, 2, 'W', 'P'}, {4, 2, 'W', 'P'},
+        {5, 2, 'W', 'P'}, {6, 2, 'W', 'P'}, {7, 2, 'W', 'P'}, {8, 2, 'W', 'P'},
+        {1, 7, 'B', 'P'}, {2, 7, 'B', 'P'}, {3, 7, 'B', 'P'}, {4, 7, 'B', 'P'},
+        {5, 7, 'B', 'P'}, {6, 7, 'B', 'P'}, {7, 7, 'B', 'P'}, {8, 7, 'B', 'P'},
+        {2, 1, 'W', 'N'}, {7, 1, 'W', 'N'}, {2, 8, 'B', 'N'}, {7, 8, 'B', 'N'},
+        {3, 1, 'W', 'B'}, {6, 1, 'W', 'B'}, {3, 8, 'B', 'B'}, {6, 8, 'B', 'B'},
+        {1, 1, 'W', 'R'}, {8, 1, 'W', 'R'}, {1, 8, 'B', 'R'}, {8, 8, 'B', 'R'},
+        {4, 1, 'W', 'Q'}, {4, 8, 'B', 'Q'},
+        {5, 1, 'W', 'K'}, {5, 8, 'B', 'K'},
         };
 
     bool running = false;
@@ -21,9 +21,9 @@ private:
     Board board;
 
     void CreateBoard() {
-        for (piece_config raw_piece : default_board_config) {
+        for (piece_info raw_piece : default_board_config) {
             std::shared_ptr<ChessPiece> piece;
-            switch (raw_piece.figure_type[0]) {
+            switch (raw_piece.figure_type) {
                 case 'K':
                     piece = std::make_shared<King>(raw_piece);
                     break;
@@ -56,7 +56,7 @@ private:
         std::vector<std::pair<int, int>> can_move_checked;
         for (std::pair<int, int> move : moving_piece->PossibleMovement(board)) {
             board.Move(piece_v, piece_h, move.first, move.second);
-            if (!board.CheckForCheck(moving_piece->color))
+            if (!board.CheckForCheck(moving_piece->GetColor()))
                 can_move_checked.push_back(move);
             board.Revert();
         }
@@ -78,7 +78,7 @@ public:
         for (int h = 8; h >= 1; h--) {
             for (int v = 1; v <= 8; v++) {
                 if (!board.IsEmpty(v, h))
-                    std::cout << board.GetColor(v, h) << board.GetType(v, h)[0] << ' ';
+                    std::cout << board.GetColor(v, h) << board.GetType(v, h) << ' ';
                 else
                     std::cout << "-- ";
             }

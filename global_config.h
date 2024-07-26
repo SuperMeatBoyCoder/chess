@@ -7,7 +7,7 @@
 
 std::ofstream file_log("log.txt");
 
-#define debug(x) log << std::filesystem::path(__FILE__).filename() << ' ' << __LINE__ << ": " << (#x) << " = " << x << std::endl
+#define debug(x) file_log << std::filesystem::path(__FILE__).filename() << ' ' << __LINE__ << ": " << (#x) << " = " << x << std::endl
 
 template <class T1, class T2>
 std::ostream& operator<<(std::ostream& out, const std::pair<T1, T2>& this_pair)

@@ -15,8 +15,8 @@ public:
         int v, h;
         std::tie(v, h) = new_piece->GetPosition();
         chess_table[v][h] = new_piece;
-        if (new_piece->figure_type == "King") {
-            if (new_piece->color == 'W')
+        if (new_piece->GetType() == 'K') {
+            if (new_piece->GetColor() == 'W')
                 white_king = new_piece;
             else
                 black_king = new_piece;
@@ -32,11 +32,11 @@ public:
     }
 
     char GetColor(int v, int h) {
-        return chess_table[v][h]->color;
+        return chess_table[v][h]->GetColor();
     }
 
-    std::string GetType(int v, int h) {
-        return chess_table[v][h]->figure_type;
+    char GetType(int v, int h) {
+        return chess_table[v][h]->GetType();
     }
 
     chess_move GetLastMove() {
@@ -69,7 +69,7 @@ public:
         }
         for (int v = 1; v <= 8; v++) {
             for (int h = 1; h <= 8; h++) {
-                if (!IsEmpty(v, h) && chess_table[v][h]->color != king_color && chess_table[v][h]->IsChecking(*this, king_v, king_h))
+                if (!IsEmpty(v, h) && chess_table[v][h]->GetColor() != king_color && chess_table[v][h]->IsChecking(*this, king_v, king_h))
                     return true;
             }
         }
