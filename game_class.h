@@ -31,7 +31,7 @@ private:
                     piece = std::make_shared<Pawn>(raw_piece);
                     break;
                 case 'N':
-                    piece = std::make_shared<Knight>(raw_piece);
+                    piece = std::make_shared<Night>(raw_piece);
                     break;
                 case 'B':
                     piece = std::make_shared<Bishop>(raw_piece);
@@ -87,11 +87,11 @@ public:
         std::cout << "Choose a piece: (chess notation):\n";
         std::string notation;
         std::cin >> notation;
-        int input_v = notation[0] - 'a' + 1, input_h = notation[1] - '0';
-        if (input_v == input_h && input_v == 0) {
+        if (notation.size() == 1) {
             running = false;
             return;
         }
+        int input_v = notation[0] - 'a' + 1, input_h = notation[1] - '0';
         if (board.IsEmpty(input_v, input_h)){
             std::cout << "No piece there!\n";
             return;
@@ -114,6 +114,10 @@ public:
         }
         std::cout << "\nChoose move (chess notation):\n";
         std::cin >> notation;
+        if (notation.size() == 1) {
+            running = false;
+            return;
+        }
         input_v = notation[0] - 'a' + 1, input_h = notation[1] - '0';
         if (std::find(can_move.begin(), can_move.end(), std::pair(input_v, input_h)) == can_move.end()) {
             std::cout << "No such move!\n";
@@ -125,6 +129,9 @@ public:
 
     void Start() {
         running = true;
+        while (IsRunning()) {
+            Update();
+        }
     }
 
     void End() {

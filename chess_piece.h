@@ -22,11 +22,6 @@ public:
            vertical(raw_piece.vertical), horizontal(raw_piece.horizontal), color(raw_piece.color), figure_type(raw_piece.figure_type) {
         file_log << "Piece of type " + figure_type + " was constructed\n";
     }
-
-    virtual ~ChessPiece() {
-        file_log << "Piece of type " + figure_type + " was deconstructed\n";
-    }
-
     std::pair<int, int> GetPosition() {
         return std::pair(vertical, horizontal);
     }

@@ -3,6 +3,8 @@
 class Pawn : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
+    ~Pawn() {file_log << "Pawn was deconstructed\n";}
+
     std::vector<std::pair<int, int>> PossibleMovement(Board& board) override {
         std::vector<std::pair<int, int>> can_move;
         int h_delta = 1;
@@ -24,7 +26,7 @@ public:
             to_h -= h_delta;
             if (board.IsCapturable(to_v + v_delta, to_h, color)) {
                 std::shared_ptr<ChessPiece> other_pawn = board.GetFigurePtr(to_v + v_delta, to_h);
-                if (other_pawn->figure_type == "Pawn" && other_pawn->times_moved == 1 && board.GetLastMovePtr()->moved == other_pawn) {
+                if (other_pawn->figure_type == "Pawn" && other_pawn->times_moved == 1 && board.GetLastMove().moved == other_pawn) {
                     
                 }
             }
@@ -44,6 +46,8 @@ public:
 class King : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
+    ~King() {file_log << "King was deconstructed\n";}
+
     virtual std::vector<std::pair<int, int>> PossibleMovement(Board& board) override {
         std::vector<std::pair<int, int>> can_move;
         for (int to_v = vertical - 1; to_v <= vertical + 1; to_v++) {
@@ -61,10 +65,12 @@ public:
     }
 };
 
-class Knight : public ChessPiece {
+class Night : public ChessPiece {
 public:
     // Knight is Night, it's a feature
     using ChessPiece::ChessPiece;
+    ~Night() {file_log << "Night was deconstructed\n";}
+
     virtual std::vector<std::pair<int, int>> PossibleMovement(Board& board) override {
         std::vector<std::pair<int, int>> can_move;
         int to_v, to_h;
@@ -95,6 +101,8 @@ public:
 class Bishop : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
+    ~Bishop() {file_log << "Bishop was deconstructed\n";}
+
     virtual std::vector<std::pair<int, int>> PossibleMovement(Board& board) override {
         std::vector<std::pair<int, int>> can_move;
         int to_v, to_h;
@@ -132,6 +140,8 @@ public:
 class Rook : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
+    ~Rook() {file_log << "Rook was deconstructed\n";}
+
     virtual std::vector<std::pair<int, int>> PossibleMovement(Board& board) override {
         std::vector<std::pair<int, int>> can_move;
         int to_v, to_h;
@@ -179,6 +189,8 @@ public:
 class Queen : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
+    ~Queen() {file_log << "Queen was deconstructed\n";}
+
     virtual std::vector<std::pair<int, int>> PossibleMovement(Board& board) override {
         std::vector<std::pair<int, int>> can_move;
         int to_v, to_h;

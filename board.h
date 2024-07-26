@@ -39,8 +39,8 @@ public:
         return chess_table[v][h]->figure_type;
     }
 
-    chess_move* GetLastMovePtr() {
-        return &move_log.back();
+    chess_move GetLastMove() {
+        return move_log.back();
     }
 
     bool Isinside(int v, int h) {
