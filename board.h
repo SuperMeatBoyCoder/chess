@@ -69,7 +69,7 @@ public:
         }
         for (int v = 1; v <= 8; v++) {
             for (int h = 1; h <= 8; h++) {
-                if (!IsEmpty(v, h) && chess_table[v][h]->color != king_color && chess_table[v][h]->IsChecking(this, king_v, king_h))
+                if (!IsEmpty(v, h) && chess_table[v][h]->color != king_color && chess_table[v][h]->IsChecking(*this, king_v, king_h))
                     return true;
             }
         }

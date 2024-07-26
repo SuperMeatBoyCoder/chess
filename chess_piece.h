@@ -10,6 +10,7 @@ struct piece_config {
 };
 
 class ChessPiece {
+    // verticals is used first due to traditional notation in chess
 protected:
     int vertical = -1, horizontal = -1;
 public:
@@ -35,11 +36,11 @@ public:
         horizontal = h;
     }
 
-    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) {
+    virtual std::vector<std::pair<int, int>> PossibleMovement(Board& board) {
         return {};
     }
 
-    virtual bool IsChecking(Board* board, int end_v, int end_h) {
+    virtual bool IsChecking(Board& board, int end_v, int end_h) {
         return false;
     }
 };

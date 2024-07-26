@@ -18,12 +18,9 @@ private:
 
     bool running = false;
     int move = 1;
-    Board* board;
+    Board board;
 
     void CreateBoard() {
-        // verticals is used first due to traditional notation in chess
-        board = new Board();
-
         for (piece_config raw_piece : default_board_config) {
             std::shared_ptr<ChessPiece> piece;
             switch (raw_piece.figure_type[0]) {
@@ -48,7 +45,7 @@ private:
                 default:
                     throw "InvalidPiece";
             }
-            board->AddFigure(piece);
+            board.AddFigure(piece);
         }
     }
 
@@ -58,10 +55,10 @@ private:
         std::tie(piece_v, piece_h) = moving_piece->GetPosition();
         std::vector<std::pair<int, int>> can_move_checked;
         for (std::pair<int, int> move : moving_piece->PossibleMovement(board)) {
-            board->Move(piece_v, piece_h, move.first, move.second);
-            if (!board->CheckForCheck(moving_piece->color))
+            board.Move(piece_v, piece_h, move.first, move.second);
+            if (!board.CheckForCheck(moving_piece->color))
                 can_move_checked.push_back(move);
-            board->Revert();
+            board.Revert();
         }
         return can_move_checked;
     }
@@ -74,15 +71,14 @@ public:
     }
 
     ~Game() {
-        delete board;
         file_log << "Game was deconstructed\n";
     }
 
     void Update() {
         for (int h = 8; h >= 1; h--) {
             for (int v = 1; v <= 8; v++) {
-                if (!board->IsEmpty(v, h))
-                    std::cout << board->GetColor(v, h) << board->GetType(v, h)[0] << ' ';
+                if (!board.IsEmpty(v, h))
+                    std::cout << board.GetColor(v, h) << board.GetType(v, h)[0] << ' ';
                 else
                     std::cout << "-- ";
             }
@@ -96,17 +92,17 @@ public:
             running = false;
             return;
         }
-        if (board->IsEmpty(input_v, input_h)){
+        if (board.IsEmpty(input_v, input_h)){
             std::cout << "No piece there!\n";
             return;
         }
-        char color = board->GetColor(input_v, input_h);
+        char color = board.GetColor(input_v, input_h);
         if ((color == 'W' && move % 2 == 0) ||
             (color == 'B' && move % 2 == 1)){
             std::cout << "it's not your turn!\n";
             return;
         }
-        std::shared_ptr<ChessPiece> this_piece = board->GetFigurePtr(input_v, input_h);
+        std::shared_ptr<ChessPiece> this_piece = board.GetFigurePtr(input_v, input_h);
         std::vector<std::pair<int, int>> can_move = PossibleMovementChecked(this_piece);
         if (can_move.empty()) {
             std::cout << "This piece can't move!\n";
@@ -123,7 +119,7 @@ public:
             std::cout << "No such move!\n";
             return;
         }
-        board->Move(this_piece, input_v, input_h);
+        board.Move(this_piece, input_v, input_h);
         move++;
     }
 
