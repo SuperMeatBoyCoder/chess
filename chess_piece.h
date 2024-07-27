@@ -10,6 +10,7 @@ struct piece_info {
 };
 
 class ChessPiece {
+    // v = verical, h = horizontal
     // verticals is used first due to traditional notation in chess
 protected:
     int m_v, m_h;

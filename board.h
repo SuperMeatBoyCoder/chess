@@ -1,6 +1,14 @@
 #pragma once
 #include "chess_piece.h"
 
+struct chess_move {
+    std::shared_ptr<ChessPiece> moved = nullptr;
+    int start_v, start_h;
+    std::shared_ptr<ChessPiece> captured = nullptr;
+    bool castle = false;
+    bool en_paussant = false;
+};
+
 class Board {
 private:
     std::vector<std::vector<std::shared_ptr<ChessPiece>>> chess_table;
@@ -81,13 +89,20 @@ public:
         return false;
     }
 
-    void Move(int start_v, int start_h, int end_v, int end_h) {
+    void Move(int start_v, int start_h, int end_v, int end_h, int special = 0) {
         std::shared_ptr<ChessPiece> moving_piece = chess_table[start_v][start_h];
         moving_piece->UpdatePosition(end_v, end_h);
         moving_piece->times_moved++;
-        move_log.push_back({moving_piece, start_v, start_h, chess_table[end_v][end_h]});
-        chess_table[end_v][end_h] = moving_piece;
+        if (special == 0) {
+            move_log.push_back({moving_piece, start_v, start_h, chess_table[end_v][end_h]});
+        }
+        //En Passaunt
+        else if (special == 2) {
+            move_log.push_back({moving_piece, start_v, start_h, chess_table[end_v][start_h], false, true});
+            chess_table[end_v][start_h] = nullptr;
+        }
         chess_table[start_v][start_h] = nullptr;
+        chess_table[end_v][end_h] = moving_piece;
     }
 
     void Move(std::shared_ptr<ChessPiece> moving_piece, int end_v, int end_h) {

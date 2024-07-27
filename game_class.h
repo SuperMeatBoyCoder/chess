@@ -18,8 +18,8 @@ private:
 
     bool running = false;
     int move = 1;
+    
     Board board;
-
     void CreateBoard() {
         for (const piece_info raw_piece : default_board_config) {
             std::shared_ptr<ChessPiece> piece;
