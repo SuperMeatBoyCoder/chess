@@ -18,7 +18,7 @@ private:
 
     bool running = false;
     int move = 1;
-    Board* board = new Board();
+    Board board;
 
     void CreateBoard() {
         for (const piece_info raw_piece : default_board_config) {
@@ -45,7 +45,7 @@ private:
                 default:
                     throw "InvalidPiece";
             }
-            board->AddFigure(piece);
+            board.AddFigure(piece);
         }
     }
 
@@ -57,15 +57,14 @@ public:
     }
 
     ~Game() {
-        delete board;
         file_log << "Game was deconstructed" << std::endl;
     }
 
     void Update() {
         for (int h = 8; h >= 1; h--) {
             for (int v = 1; v <= 8; v++) {
-                if (!board->IsEmpty(v, h))
-                    std::cout << board->GetColor(v, h) << board->GetType(v, h) << ' ';
+                if (!board.IsEmpty(v, h))
+                    std::cout << board.GetColor(v, h) << board.GetType(v, h) << ' ';
                 else
                     std::cout << "-- ";
             }
@@ -79,23 +78,23 @@ public:
             return;
         }
         int input_v = notation[0] - 'a' + 1, input_h = notation[1] - '0';
-        if (!board->Isinside(input_v, input_h)){
+        if (!board.Isinside(input_v, input_h)){
             std::cout << "No such place exist!\n";
             return;
         }
-        if (board->IsEmpty(input_v, input_h)){
+        if (board.IsEmpty(input_v, input_h)){
             std::cout << "No piece there!\n";
             return;
         }
-        char color = board->GetColor(input_v, input_h);
+        char color = board.GetColor(input_v, input_h);
         if ((color == 'W' && move % 2 == 0) ||
             (color == 'B' && move % 2 == 1)){
             std::cout << "it's not your turn!\n";
             return;
         }
-        const std::shared_ptr<ChessPiece> this_piece = board->GetFigurePtr(input_v, input_h);
+        const std::shared_ptr<ChessPiece> this_piece = board.GetFigurePtr(input_v, input_h);
         std::vector<std::pair<int, int>> can_move;
-        this_piece->PossibleMovementChecked(board, can_move);
+        this_piece->PossibleMovementChecked(&board, can_move);
         if (can_move.empty()) {
             std::cout << "This piece can't move!\n";
             return;
@@ -115,7 +114,7 @@ public:
             std::cout << "No such move!\n";
             return;
         }
-        board->Move(this_piece, input_v, input_h);
+        board.Move(this_piece, input_v, input_h);
         move++;
     }
 
