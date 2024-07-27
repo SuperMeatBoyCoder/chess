@@ -6,7 +6,7 @@ public:
     King(piece_info info) : ChessPiece(info) {file_log << "King was constructed\n";}
     ~King() {file_log << "King was deconstructed\n";}
 
-    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
+    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
         std::vector<std::pair<int, int>> can_move;
         for (int to_v = m_v - 1; to_v <= m_v + 1; to_v++) {
             for (int to_h = m_h - 1; to_h <= m_h + 1; to_h++) {
@@ -18,7 +18,7 @@ public:
         return can_move;
     }
 
-    virtual bool IsChecking(Board* board, int end_v, int end_h) override {
+    bool IsChecking(Board* board, int end_v, int end_h) override {
         return (abs(m_v - end_v) + abs(m_h - end_h)) <= 1;
     }
 };
@@ -75,7 +75,7 @@ public:
     Night(piece_info info) : ChessPiece(info) {file_log << "Night was constructed\n";}
     ~Night() {file_log << "Night was deconstructed\n";}
 
-    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
+    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
         std::vector<std::pair<int, int>> can_move;
         int to_v, to_h;
         for (int v_delta : {-1, 1}) {
@@ -95,7 +95,7 @@ public:
         return can_move;
     }
 
-    virtual bool IsChecking(Board* board, int end_v, int end_h) override {
+    bool IsChecking(Board* board, int end_v, int end_h) override {
         std::pair<int, int> check(abs(m_v - end_v), abs(m_h - end_h));
         if (check.first > check.second) std::swap(check.first, check.second);
         return check == std::pair(1, 2);
@@ -108,7 +108,7 @@ public:
     Bishop(piece_info info) : ChessPiece(info) {file_log << "Bishop was constructed\n";}
     ~Bishop() {file_log << "Bishop was deconstructed\n";}
 
-    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
+    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
         std::vector<std::pair<int, int>> can_move;
         int to_v, to_h;
         for (int v_delta : {-1, 1}) {
@@ -127,7 +127,7 @@ public:
         return can_move;
     }
 
-    virtual bool IsChecking(Board* board, int end_v, int end_h) override {
+    bool IsChecking(Board* board, int end_v, int end_h) override {
         int to_v = m_v, to_h = m_h;
         int v_delta = 1, h_delta = 1;
         if (to_v > end_v) v_delta = -1;
@@ -148,7 +148,7 @@ public:
     Rook(piece_info info) : ChessPiece(info) {file_log << "Rook was constructed\n";}
     ~Rook() {file_log << "Rook was deconstructed\n";}
 
-    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
+    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
         std::vector<std::pair<int, int>> can_move;
         int to_v, to_h;
         for (int v_delta : {-1, 1}) {
@@ -174,7 +174,7 @@ public:
         return can_move;
     }
 
-    virtual bool IsChecking(Board* board, int end_v, int end_h) override {
+    bool IsChecking(Board* board, int end_v, int end_h) override {
         int to_v = m_v, to_h = m_h;
         int v_delta = 0, h_delta = 0;
         if (to_v < end_v) v_delta = 1;
@@ -198,7 +198,7 @@ public:
     Queen(piece_info info) : ChessPiece(info) {file_log << "Queen was constructed\n";}
     ~Queen() {file_log << "Queen was deconstructed\n";}
 
-    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
+    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
         std::vector<std::pair<int, int>> can_move;
         int to_v, to_h;
         for (int v_delta : {-1, 0, 1}) {
@@ -217,7 +217,7 @@ public:
         return can_move;
     }
 
-    virtual bool IsChecking(Board* board, int end_v, int end_h) override {
+    bool IsChecking(Board* board, int end_v, int end_h) override {
         int to_v = m_v, to_h = m_h;
         int v_delta = 0, h_delta = 0;
         if (to_v < end_v) v_delta = 1;
