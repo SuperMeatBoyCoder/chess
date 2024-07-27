@@ -14,6 +14,10 @@ class ChessPiece {
 protected:
     int m_v, m_h;
     const char m_color, m_figure_type;
+
+    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) {
+        return {};
+    }
 public:
     int times_moved = 0;
 
@@ -36,13 +40,13 @@ public:
         m_h = h;
     }
 
-    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) {
-        return {};
-    }
+    // writes possible moves in the provided vecctor
+    void PossibleMovementChecked(Board* board, std::vector<std::pair<int, int>>& can_move_checked);
 
     virtual bool IsChecking(Board* board, int end_v, int end_h) {
         return false;
     }
+
 };
 
 struct chess_move {

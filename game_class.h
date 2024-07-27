@@ -49,20 +49,6 @@ private:
         }
     }
 
-    // most heavy code
-    std::vector<std::pair<int, int>> PossibleMovementChecked(const std::shared_ptr<ChessPiece> moving_piece) {
-        int piece_v, piece_h;
-        std::tie(piece_v, piece_h) = moving_piece->GetPosition();
-        std::vector<std::pair<int, int>> can_move_checked;
-        for (std::pair<int, int> move : moving_piece->PossibleMovement(board)) {
-            board->Move(piece_v, piece_h, move.first, move.second);
-            if (!board->CheckForCheck(moving_piece->GetColor()))
-                can_move_checked.push_back(move);
-            board->Revert();
-        }
-        return can_move_checked;
-    }
-
 public:
     Game() {
         CreateBoard();
@@ -108,7 +94,8 @@ public:
             return;
         }
         const std::shared_ptr<ChessPiece> this_piece = board->GetFigurePtr(input_v, input_h);
-        const std::vector<std::pair<int, int>> can_move = PossibleMovementChecked(this_piece);
+        std::vector<std::pair<int, int>> can_move;
+        this_piece->PossibleMovementChecked(board, can_move);
         if (can_move.empty()) {
             std::cout << "This piece can't move!\n";
             return;

@@ -1,5 +1,17 @@
 #include "board.h"
 
+// most heavy code
+void ChessPiece::PossibleMovementChecked(Board* board, std::vector<std::pair<int, int>>& can_move_checked) {
+    int piece_v, piece_h;
+    std::tie(piece_v, piece_h) = GetPosition();
+    for (std::pair<int, int> move : PossibleMovement(board)) {
+        board->Move(piece_v, piece_h, move.first, move.second);
+        if (!board->CheckForCheck(GetColor()))
+            can_move_checked.push_back(move);
+        board->Revert();
+    }
+}
+
 class King : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
