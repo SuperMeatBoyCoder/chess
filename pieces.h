@@ -1,29 +1,17 @@
 #include "board.h"
 
-// most heavy code
-void ChessPiece::PossibleMovementChecked(Board* board, std::vector<std::pair<int, int>>& can_move_checked) {
-    int piece_v, piece_h;
-    std::tie(piece_v, piece_h) = GetPosition();
-    for (std::pair<int, int> move : PossibleMovement(board)) {
-        board->Move(piece_v, piece_h, move.first, move.second);
-        if (!board->CheckForCheck(GetColor()))
-            can_move_checked.push_back(move);
-        board->Revert();
-    }
-}
-
 class King : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
     King(piece_info info) : ChessPiece(info) {file_log << "King was constructed\n";}
     ~King() {file_log << "King was deconstructed\n";}
 
-    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
-        std::vector<std::pair<int, int>> can_move;
+    std::vector<possible_move> PossibleMovement(Board* board) override {
+        std::vector<possible_move> can_move;
         for (int to_v = m_v - 1; to_v <= m_v + 1; to_v++) {
             for (int to_h = m_h - 1; to_h <= m_h + 1; to_h++) {
                 if (board->isMovableOrCapturable(to_v, to_h, m_color)) {
-                    can_move.push_back(std::pair(to_v, to_h));
+                    can_move.push_back({to_v, to_h});
                 }
             }
         }
@@ -42,31 +30,32 @@ public:
     Pawn(piece_info info) : ChessPiece(info) {file_log << "Pawn was constructed\n";}
     ~Pawn() {file_log << "Pawn was deconstructed\n";}
 
-    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
-        std::vector<std::pair<int, int>> can_move;
+    std::vector<possible_move> PossibleMovement(Board* board) override {
+        std::vector<possible_move> can_move;
         int h_delta = 1;
         if (m_color == 'B')
             h_delta = -1;
         int to_h = m_h + h_delta, to_v = m_v;
 
         if (board->IsMovable(to_v, to_h)) {
-            can_move.push_back(std::pair(to_v, to_h));
+            can_move.push_back({to_v, to_h});
             if (times_moved == 0 && board->IsMovable(to_v, to_h + h_delta)) {
-                can_move.push_back(std::pair(to_v, to_h + h_delta));
+                can_move.push_back({to_v, to_h + h_delta});
             }
         }
         for (int v_delta : {-1, 1}) {
             if (board->IsCapturable(to_v + v_delta, to_h, m_color)) {
-                can_move.push_back(std::pair(to_v + v_delta, to_h));
+                can_move.push_back({to_v + v_delta, to_h});
             }
-            // En Passant (unfinished, need to rework the move system)
-            to_h -= h_delta;
-            if (board->IsCapturable(to_v + v_delta, to_h, m_color)) {
-                std::shared_ptr<ChessPiece> other_pawn = board->GetFigurePtr(to_v + v_delta, to_h);
-                if (other_pawn->GetType() == 'P' && other_pawn->times_moved == 1 && board->GetLastMove().moved == other_pawn) {
+
+            // En Passant
+            if (board->IsCapturable(to_v + v_delta, m_h, m_color)) {
+                std::shared_ptr<ChessPiece> other_pawn = board->GetFigurePtr(to_v + v_delta, m_h);
+                chess_move last_move = board->GetLastMove();
+                if (other_pawn->GetType() == 'P' && last_move.moved == other_pawn && abs(last_move.start_h - m_h) == 2) {
+                    can_move.push_back({to_v + v_delta, to_h, 2});
                 }
             }
-            to_h += h_delta;
         }
 
         return can_move;
@@ -87,20 +76,20 @@ public:
     Night(piece_info info) : ChessPiece(info) {file_log << "Night was constructed\n";}
     ~Night() {file_log << "Night was deconstructed\n";}
 
-    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
-        std::vector<std::pair<int, int>> can_move;
+    std::vector<possible_move> PossibleMovement(Board* board) override {
+        std::vector<possible_move> can_move;
         int to_v, to_h;
         for (int v_delta : {-1, 1}) {
             for (int h_delta : {-1, 1}) {
                 to_v = m_v + v_delta;
                 to_h = m_h + h_delta * 2;
                 if (board->isMovableOrCapturable(to_v, to_h, m_color)) {
-                    can_move.push_back(std::pair(to_v, to_h));
+                    can_move.push_back({to_v, to_h});
                 }
                 to_h -= h_delta;
                 to_v += v_delta;
                 if (board->isMovableOrCapturable(to_v, to_h, m_color)) {
-                    can_move.push_back(std::pair(to_v, to_h));
+                    can_move.push_back({to_v, to_h});
                 }
             }
         }
@@ -120,20 +109,20 @@ public:
     Bishop(piece_info info) : ChessPiece(info) {file_log << "Bishop was constructed\n";}
     ~Bishop() {file_log << "Bishop was deconstructed\n";}
 
-    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
-        std::vector<std::pair<int, int>> can_move;
+    std::vector<possible_move> PossibleMovement(Board* board) override {
+        std::vector<possible_move> can_move;
         int to_v, to_h;
         for (int v_delta : {-1, 1}) {
             for (int h_delta : {-1, 1}) {
                 to_v = m_v + v_delta;
                 to_h = m_h + h_delta;
                 while (board->IsMovable(to_v, to_h)) {
-                    can_move.push_back(std::pair(to_v, to_h));
+                    can_move.push_back({to_v, to_h});
                     to_v += v_delta;
                     to_h += h_delta;
                 }
                 if (board->IsCapturable(to_v, to_h, m_color))
-                    can_move.push_back(std::pair(to_v, to_h));
+                    can_move.push_back({to_v, to_h});
             }
         }
         return can_move;
@@ -160,28 +149,28 @@ public:
     Rook(piece_info info) : ChessPiece(info) {file_log << "Rook was constructed\n";}
     ~Rook() {file_log << "Rook was deconstructed\n";}
 
-    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
-        std::vector<std::pair<int, int>> can_move;
+    std::vector<possible_move> PossibleMovement(Board* board) override {
+        std::vector<possible_move> can_move;
         int to_v, to_h;
         for (int v_delta : {-1, 1}) {
             to_v = m_v + v_delta;
             to_h = m_h;
             while (board->IsMovable(to_v, to_h)) {
-                can_move.push_back(std::pair(to_v, to_h));
+                can_move.push_back({to_v, to_h});
                 to_v += v_delta;
             }
             if (board->IsCapturable(to_v, to_h, m_color))
-                can_move.push_back(std::pair(to_v, to_h));
+                can_move.push_back({to_v, to_h});
         }
         for (int h_delta : {-1, 1}) {
             to_v = m_v;
             to_h = m_h + h_delta;
             while (board->IsMovable(to_v, to_h)) {
-                can_move.push_back(std::pair(to_v, to_h));
+                can_move.push_back({to_v, to_h});
                 to_h += h_delta;
             }
             if (board->IsCapturable(to_v, to_h, m_color))
-                can_move.push_back(std::pair(to_v, to_h));
+                can_move.push_back({to_v, to_h});
         }
         return can_move;
     }
@@ -210,20 +199,20 @@ public:
     Queen(piece_info info) : ChessPiece(info) {file_log << "Queen was constructed\n";}
     ~Queen() {file_log << "Queen was deconstructed\n";}
 
-    std::vector<std::pair<int, int>> PossibleMovement(Board* board) override {
-        std::vector<std::pair<int, int>> can_move;
+    std::vector<possible_move> PossibleMovement(Board* board) override {
+        std::vector<possible_move> can_move;
         int to_v, to_h;
         for (int v_delta : {-1, 0, 1}) {
             for (int h_delta : {-1, 0, 1}) {
                 to_v = m_v + v_delta;
                 to_h = m_h + h_delta;
                 while (board->IsMovable(to_v, to_h)) {
-                    can_move.push_back(std::pair(to_v, to_h));
+                    can_move.push_back({to_v, to_h});
                     to_v += v_delta;
                     to_h += h_delta;
                 }
                 if (board->IsCapturable(to_v, to_h, m_color))
-                    can_move.push_back(std::pair(to_v, to_h));
+                    can_move.push_back({to_v, to_h});
             }
         }
         return can_move;

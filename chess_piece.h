@@ -1,13 +1,4 @@
-#pragma once
-#include "global_config.h"
-
-class Board;
-
-struct piece_info {
-    // v = verical, h = horizontal
-    int v, h;
-    const char color, figure_type;
-};
+#include "structs.h"
 
 class ChessPiece {
     // v = verical, h = horizontal
@@ -15,10 +6,6 @@ class ChessPiece {
 protected:
     int m_v, m_h;
     const char m_color, m_figure_type;
-
-    virtual std::vector<std::pair<int, int>> PossibleMovement(Board* board) {
-        return {};
-    }
 public:
     int times_moved = 0;
 
@@ -41,17 +28,12 @@ public:
         m_h = h;
     }
 
-    // writes possible moves in the provided vecctor
-    void PossibleMovementChecked(Board* board, std::vector<std::pair<int, int>>& can_move_checked);
+    virtual std::vector<possible_move> PossibleMovement(Board* board) {
+        return {};
+    }
 
     virtual bool IsChecking(Board* board, int end_v, int end_h) {
         return false;
     }
 
-};
-
-struct chess_move {
-    std::shared_ptr<ChessPiece> moved = nullptr;
-    int start_v, start_h;
-    std::shared_ptr<ChessPiece> captured = nullptr;
 };

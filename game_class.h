@@ -93,15 +93,15 @@ public:
             return;
         }
         const std::shared_ptr<ChessPiece> this_piece = board.GetFigurePtr(input_v, input_h);
-        std::vector<std::pair<int, int>> can_move;
-        this_piece->PossibleMovementChecked(&board, can_move);
+        std::vector<possible_move> can_move;
+        board.PossibleMovementChecked(this_piece, can_move);
         if (can_move.empty()) {
             std::cout << "This piece can't move!\n";
             return;
         }
         std::cout << "Possible moves:\n";
-        for (std::pair<int, int> move : can_move) {
-            std::cout << char('a'+ move.first - 1) << move.second << ' ';
+        for (possible_move move : can_move) {
+            std::cout << char('a' + move.end_v - 1) << move.end_h << ' ';
         }
         std::cout << "\nChoose move (chess notation):\n";
         std::cin >> notation;
@@ -110,11 +110,12 @@ public:
             return;
         }
         input_v = notation[0] - 'a' + 1, input_h = notation[1] - '0';
-        if (std::find(can_move.begin(), can_move.end(), std::pair(input_v, input_h)) == can_move.end()) {
+        auto it = std::find(can_move.begin(), can_move.end(), possible_move{input_v, input_h});
+        if (it == can_move.end()) {
             std::cout << "No such move!\n";
             return;
         }
-        board.Move(this_piece, input_v, input_h);
+        board.Move(this_piece, *it);
         move++;
     }
 

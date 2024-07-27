@@ -1,14 +1,6 @@
 #pragma once
 #include "chess_piece.h"
 
-struct chess_move {
-    std::shared_ptr<ChessPiece> moved = nullptr;
-    int start_v, start_h;
-    std::shared_ptr<ChessPiece> captured = nullptr;
-    bool castle = false;
-    bool en_paussant = false;
-};
-
 class Board {
 private:
     std::vector<std::vector<std::shared_ptr<ChessPiece>>> chess_table;
@@ -88,37 +80,73 @@ public:
         }
         return false;
     }
+    void Move(std::shared_ptr<ChessPiece> moving_piece, possible_move move) {
+        auto [start_v, start_h] = moving_piece->GetPosition();
+        auto [end_v, end_h, special] = move;
 
-    void Move(int start_v, int start_h, int end_v, int end_h, int special = 0) {
-        std::shared_ptr<ChessPiece> moving_piece = chess_table[start_v][start_h];
         moving_piece->UpdatePosition(end_v, end_h);
         moving_piece->times_moved++;
-        if (special == 0) {
+
+        switch (special) {
+        // normal move
+        case 0:
             move_log.push_back({moving_piece, start_v, start_h, chess_table[end_v][end_h]});
-        }
+            break;
+        // Castle
+        case 1:
+            break;
         //En Passaunt
-        else if (special == 2) {
-            move_log.push_back({moving_piece, start_v, start_h, chess_table[end_v][start_h], false, true});
+        case 2:
+            move_log.push_back({moving_piece, start_v, start_h, chess_table[end_v][start_h], 2});
             chess_table[end_v][start_h] = nullptr;
+            break;
+        default:
+            throw "invalid special move";
         }
+
         chess_table[start_v][start_h] = nullptr;
         chess_table[end_v][end_h] = moving_piece;
-    }
-
-    void Move(std::shared_ptr<ChessPiece> moving_piece, int end_v, int end_h) {
-        int start_v, start_h;
-        std::tie(start_v, start_h) = moving_piece->GetPosition();
-        Move(start_v, start_h, end_v, end_h);
     }
 
     void Revert() {
         chess_move last_move = move_log.back();
         move_log.pop_back();
-        int end_v, end_h;
-        std::tie(end_v, end_h) = last_move.moved->GetPosition();
-        last_move.moved->UpdatePosition(last_move.start_v, last_move.start_h);
+        int start_v = last_move.start_v;
+        int start_h = last_move.start_h;
+        auto [end_v, end_h] = last_move.moved->GetPosition();
+        last_move.moved->UpdatePosition(start_v, start_h);
+        chess_table[start_v][start_h] = last_move.moved;
         last_move.moved->times_moved--;
-        chess_table[last_move.start_v][last_move.start_h] = last_move.moved;
-        chess_table[end_v][end_h] = last_move.captured;
+
+        switch (last_move.special) {
+        // normal move
+        case 0:
+            chess_table[end_v][end_h] = last_move.captured;
+            break;
+        // Castle
+        case 1:
+            break;
+        //En Passaunt
+        case 2:
+            chess_table[end_v][end_h] = nullptr;
+            chess_table[end_v][start_h] = last_move.captured;
+            break;
+        default:
+            throw "invalid special move in revert";
+        }
+    }
+
+    // most heavy code
+
+    // writes possible moves in the provided vecctor
+    void PossibleMovementChecked(std::shared_ptr<ChessPiece> this_figure, std::vector<possible_move>& can_move_checked) {
+        int piece_v, piece_h;
+        std::tie(piece_v, piece_h) = this_figure->GetPosition();
+        for (possible_move move : this_figure->PossibleMovement(this)) {
+            Move(this_figure, move);
+            if (!CheckForCheck(this_figure->GetColor()))
+                can_move_checked.push_back(move);
+            Revert();
+        }
     }
 };
