@@ -80,24 +80,27 @@ public:
         }
         return false;
     }
-    void Move(std::shared_ptr<ChessPiece> moving_piece, possible_move move) {
+    
+    chess_move Move(std::shared_ptr<ChessPiece> moving_piece, possible_move move, bool log_needed = true) {
         auto [start_v, start_h] = moving_piece->GetPosition();
         auto [end_v, end_h, special] = move;
 
         moving_piece->UpdatePosition(end_v, end_h);
         moving_piece->times_moved++;
 
+        chess_move this_move;
+
         switch (special) {
         // normal move
         case 0:
-            move_log.push_back({moving_piece, start_v, start_h, chess_table[end_v][end_h]});
+            this_move = {moving_piece, start_v, start_h, chess_table[end_v][end_h]};
             break;
         // Castle
         case 1:
             break;
         //En Passaunt
         case 2:
-            move_log.push_back({moving_piece, start_v, start_h, chess_table[end_v][start_h], 2});
+            this_move = {moving_piece, start_v, start_h, chess_table[end_v][start_h], 2};
             chess_table[end_v][start_h] = nullptr;
             break;
         default:
@@ -106,11 +109,14 @@ public:
 
         chess_table[start_v][start_h] = nullptr;
         chess_table[end_v][end_h] = moving_piece;
+
+        if (log_needed) {
+            move_log.push_back(this_move);
+        }
+        return this_move;
     }
 
-    void Revert() {
-        chess_move last_move = move_log.back();
-        move_log.pop_back();
+    void Revert(chess_move last_move) {
         int start_v = last_move.start_v;
         int start_h = last_move.start_h;
         auto [end_v, end_h] = last_move.moved->GetPosition();
@@ -138,15 +144,15 @@ public:
 
     // most heavy code
 
-    // writes possible moves in the provided vecctor
+    // writes possible moves in the provided vector
     void PossibleMovementChecked(std::shared_ptr<ChessPiece> this_figure, std::vector<possible_move>& can_move_checked) {
         int piece_v, piece_h;
         std::tie(piece_v, piece_h) = this_figure->GetPosition();
         for (possible_move move : this_figure->PossibleMovement(this)) {
-            Move(this_figure, move);
+            chess_move this_move = Move(this_figure, move, false);
             if (!CheckForCheck(this_figure->GetColor()))
                 can_move_checked.push_back(move);
-            Revert();
+            Revert(this_move);
         }
     }
 };
