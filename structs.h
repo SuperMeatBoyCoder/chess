@@ -1,26 +1,32 @@
 #include "global_config.h"
 
+namespace Chess {
 class Board;
 
 class ChessPiece;
 
-struct chess_move {
-    std::shared_ptr<ChessPiece> moved = nullptr;
-    int start_v, start_h;
-    std::shared_ptr<ChessPiece> captured = nullptr;
-    int special = 0;
+struct Square {
+    int v = -1, h = -1;
+    bool operator==(const Square other) {
+        return v == other.v && h == other.h;
+    }
+    operator int() const {return v * 8 + h;}
 };
 
-struct piece_info {
-    int v, h;
-    const char color, figure_type;
-};
+struct ChessMove {
+    Square square;
+    std::shared_ptr<ChessPiece> captured_piece = nullptr;
+    std::shared_ptr<ChessPiece> moving_piece = nullptr;
+    int special = NORMAL_MOVE;
+    bool done = false;
 
-struct possible_move {
-    int end_v, end_h;
-    int special = 0;
-
-    bool operator==(possible_move other) {
-        return end_v == other.end_v && end_h == other.end_h;
+    bool operator==(const ChessMove other) {
+        return moving_piece == other.moving_piece && done == other.done && square == other.square;
     }
 };
+
+struct PieceInfo {
+    Square square;
+    const char color, figure_type;
+};
+}

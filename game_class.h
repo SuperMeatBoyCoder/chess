@@ -2,9 +2,10 @@
 #include "board.h"
 #include "pieces.h"
 
+namespace Chess {
 class Game {
 private:
-    const std::vector<piece_info> default_board_config = {
+    const std::vector<PieceInfo> default_board_config = {
         {1, 2, 'W', 'P'}, {2, 2, 'W', 'P'}, {3, 2, 'W', 'P'}, {4, 2, 'W', 'P'},
         {5, 2, 'W', 'P'}, {6, 2, 'W', 'P'}, {7, 2, 'W', 'P'}, {8, 2, 'W', 'P'},
         {1, 7, 'B', 'P'}, {2, 7, 'B', 'P'}, {3, 7, 'B', 'P'}, {4, 7, 'B', 'P'},
@@ -21,7 +22,7 @@ private:
     
     Board board;
     void CreateBoard() {
-        for (const piece_info raw_piece : default_board_config) {
+        for (const PieceInfo raw_piece : default_board_config) {
             std::shared_ptr<ChessPiece> piece;
             switch (raw_piece.figure_type) {
                 case 'K':
@@ -63,8 +64,9 @@ public:
     void Update() {
         for (int h = 8; h >= 1; h--) {
             for (int v = 1; v <= 8; v++) {
-                if (!board.IsEmpty(v, h))
-                    std::cout << board.GetColor(v, h) << board.GetType(v, h) << ' ';
+                Square square = {v, h};
+                if (!board.IsEmpty(square))
+                    std::cout << board.GetColor(square) << board.GetType(square) << ' ';
                 else
                     std::cout << "-- ";
             }
@@ -77,31 +79,31 @@ public:
             running = false;
             return;
         }
-        int input_v = notation[0] - 'a' + 1, input_h = notation[1] - '0';
-        if (!board.Isinside(input_v, input_h)){
+        Square input_square = {notation[0] - 'a' + 1, notation[1] - '0'};
+        if (!board.Isinside(input_square)){
             std::cout << "No such place exist!\n";
             return;
         }
-        if (board.IsEmpty(input_v, input_h)){
+        if (board.IsEmpty(input_square)){   
             std::cout << "No piece there!\n";
             return;
         }
-        char color = board.GetColor(input_v, input_h);
+        char color = board.GetColor(input_square);
         if ((color == 'W' && move % 2 == 0) ||
-            (color == 'B' && move % 2 == 1)){
+            (color == 'B' && move % 2 == 1)) {
             std::cout << "it's not your turn!\n";
             return;
         }
-        const std::shared_ptr<ChessPiece> this_piece = board.GetFigurePtr(input_v, input_h);
-        std::vector<possible_move> can_move;
+        const std::shared_ptr<ChessPiece> this_piece = board.GetPiecePtr(input_square);
+        std::vector<ChessMove> can_move;
         board.PossibleMovementChecked(this_piece, can_move);
         if (can_move.empty()) {
             std::cout << "This piece can't move!\n";
             return;
         }
         std::cout << "Possible moves:\n";
-        for (possible_move move : can_move) {
-            std::cout << char('a' + move.end_v - 1) << move.end_h << ' ';
+        for (ChessMove move : can_move) {
+            std::cout << char('a' + move.square.v - 1) << move.square.h << ' ';
         }
         std::cout << "\nChoose move (chess notation):\n";
         std::cin >> notation;
@@ -109,13 +111,14 @@ public:
             running = false;
             return;
         }
-        input_v = notation[0] - 'a' + 1, input_h = notation[1] - '0';
-        auto it = std::find(can_move.begin(), can_move.end(), possible_move{input_v, input_h});
+        ChessMove input_move = {notation[0] - 'a' + 1, notation[1] - '0'};
+        input_move.moving_piece = this_piece;
+        auto it = std::find(can_move.begin(), can_move.end(), input_move);
         if (it == can_move.end()) {
             std::cout << "No such move!\n";
             return;
         }
-        board.Move(this_piece, *it);
+        board.Move(*it);
         move++;
     }
 
@@ -134,3 +137,4 @@ public:
         return running;
     }
 };
+}

@@ -1,25 +1,30 @@
 #include "board.h"
 
+namespace Chess {
 class King : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    King(piece_info info) : ChessPiece(info) {file_log << "King was constructed\n";}
+    King(PieceInfo info) : ChessPiece(info) {file_log << "King was constructed\n";}
     ~King() {file_log << "King was deconstructed\n";}
 
-    std::vector<possible_move> PossibleMovement(Board* board) override {
-        std::vector<possible_move> can_move;
-        for (int to_v = m_v - 1; to_v <= m_v + 1; to_v++) {
-            for (int to_h = m_h - 1; to_h <= m_h + 1; to_h++) {
-                if (board->isMovableOrCapturable(to_v, to_h, m_color)) {
-                    can_move.push_back({to_v, to_h});
+    std::vector<ChessMove> PossibleMovement(Chess::Board* board) override {
+        std::vector<ChessMove> can_move;
+        ChessMove this_move;
+        for (int v_delta : {-1, 0, 1}) {
+            for (int h_delta : {-1, 0, 1}) {
+                this_move.square = {m_square.v + v_delta, m_square.h + h_delta};
+                if (board->isMovableOrCapturable(this_move.square, m_color)) {
+                    this_move.captured_piece = board->GetPiecePtr(this_move.square);
+                    can_move.push_back(this_move);
+                    this_move.captured_piece = nullptr;
                 }
             }
         }
         return can_move;
     }
 
-    bool IsChecking(Board* board, int end_v, int end_h) override {
-        return (abs(m_v - end_v) + abs(m_h - end_h)) <= 1;
+    bool IsChecking(Board* board, Square king_square) override {
+        return (abs(m_square.v - king_square.v) + abs(m_square.h - king_square.h)) <= 1;
     }
 };
 
@@ -27,77 +32,90 @@ public:
 class Pawn : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    Pawn(piece_info info) : ChessPiece(info) {file_log << "Pawn was constructed\n";}
+    Pawn(PieceInfo info) : ChessPiece(info) {file_log << "Pawn was constructed\n";}
     ~Pawn() {file_log << "Pawn was deconstructed\n";}
 
-    std::vector<possible_move> PossibleMovement(Board* board) override {
-        std::vector<possible_move> can_move;
+    std::vector<ChessMove> PossibleMovement(Board* board) override {
+        std::vector<ChessMove> can_move;
         int h_delta = 1;
         if (m_color == 'B')
             h_delta = -1;
-        int to_h = m_h + h_delta, to_v = m_v;
+        ChessMove this_move = {m_square.v, m_square.h + h_delta};
 
-        if (board->IsMovable(to_v, to_h)) {
-            can_move.push_back({to_v, to_h});
-            if (times_moved == 0 && board->IsMovable(to_v, to_h + h_delta)) {
-                can_move.push_back({to_v, to_h + h_delta});
+        if (board->IsMovable(this_move.square)) {
+            can_move.push_back(this_move);
+            this_move.square.h += h_delta;
+            if (times_moved == 0 && board->IsMovable(this_move.square)) {
+                can_move.push_back(this_move);
             }
+            this_move.square.h -= h_delta;
         }
         for (int v_delta : {-1, 1}) {
-            if (board->IsCapturable(to_v + v_delta, to_h, m_color)) {
-                can_move.push_back({to_v + v_delta, to_h});
+            this_move.square.v += v_delta;
+            if (board->IsCapturable(this_move.square, m_color)) {
+                this_move.captured_piece = board->GetPiecePtr(this_move.square);
+                can_move.push_back(this_move);
+                this_move.captured_piece = nullptr;
             }
 
             // En Passant
-            if (board->IsCapturable(to_v + v_delta, m_h, m_color)) {
-                std::shared_ptr<ChessPiece> other_pawn = board->GetFigurePtr(to_v + v_delta, m_h);
-                chess_move last_move = board->GetLastMove();
-                if (other_pawn->GetType() == 'P' && last_move.moved == other_pawn && abs(last_move.start_h - m_h) == 2) {
-                    can_move.push_back({to_v + v_delta, to_h, 2});
+            if (board->IsCapturable({this_move.square.v, m_square.h}, m_color) && board->IsMovable(this_move.square)) {
+                std::shared_ptr<ChessPiece> other_piece = board->GetPiecePtr({this_move.square.v, m_square.h});
+                ChessMove last_move = board->GetLastMove();
+                if (other_piece->GetType() == 'P' && other_piece->times_moved == 1 && last_move.moving_piece == other_piece) {
+                    this_move.captured_piece = other_piece;
+                    this_move.special = EN_PASSANT;
+                    can_move.push_back(this_move);
+                    this_move.captured_piece = nullptr;
+                    this_move.special = NORMAL_MOVE;
                 }
             }
+            this_move.square.v -= v_delta;
         }
 
         return can_move;
     }
 
-    bool IsChecking(Board* board, int end_v, int end_h) override {
+    bool IsChecking(Board* board, Square king_square) override {
         int h_delta = 1;
         if (m_color == 'B')
             h_delta = -1;
-        return m_h + h_delta == end_h && abs(m_v - end_v) == 1;
+        return m_square.h + h_delta == king_square.h && abs(m_square.v - king_square.v) == 1;
     }
 };
 
+// Knight is Night. It's a feature, not a bug
 class Night : public ChessPiece {
 public:
-    // Knight is Night, it's a feature
     using ChessPiece::ChessPiece;
-    Night(piece_info info) : ChessPiece(info) {file_log << "Night was constructed\n";}
+    Night(PieceInfo info) : ChessPiece(info) {file_log << "Night was constructed\n";}
     ~Night() {file_log << "Night was deconstructed\n";}
 
-    std::vector<possible_move> PossibleMovement(Board* board) override {
-        std::vector<possible_move> can_move;
-        int to_v, to_h;
+    std::vector<ChessMove> PossibleMovement(Board* board) override {
+        std::vector<ChessMove> can_move;
+        ChessMove this_move;
         for (int v_delta : {-1, 1}) {
             for (int h_delta : {-1, 1}) {
-                to_v = m_v + v_delta;
-                to_h = m_h + h_delta * 2;
-                if (board->isMovableOrCapturable(to_v, to_h, m_color)) {
-                    can_move.push_back({to_v, to_h});
+                this_move.square = {m_square.v + v_delta, m_square.h + h_delta * 2};
+                if (board->isMovableOrCapturable(this_move.square, m_color)) {
+                    this_move.captured_piece = board->GetPiecePtr(this_move.square);
+                    can_move.push_back(this_move);
+                    this_move.captured_piece = nullptr;
                 }
-                to_h -= h_delta;
-                to_v += v_delta;
-                if (board->isMovableOrCapturable(to_v, to_h, m_color)) {
-                    can_move.push_back({to_v, to_h});
+                this_move.square.h -= h_delta;
+                this_move.square.v += v_delta;
+                if (board->isMovableOrCapturable(this_move.square, m_color)) {
+                    this_move.captured_piece = board->GetPiecePtr(this_move.square);
+                    can_move.push_back(this_move);
+                    this_move.captured_piece = nullptr;
                 }
             }
         }
         return can_move;
     }
 
-    bool IsChecking(Board* board, int end_v, int end_h) override {
-        std::pair<int, int> check(abs(m_v - end_v), abs(m_h - end_h));
+    bool IsChecking(Board* board, Square king_square) override {
+        std::pair<int, int> check(abs(m_square.v - king_square.v), abs(m_square.h - king_square.h));
         if (check.first > check.second) std::swap(check.first, check.second);
         return check == std::pair(1, 2);
     }
@@ -106,131 +124,140 @@ public:
 class Bishop : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    Bishop(piece_info info) : ChessPiece(info) {file_log << "Bishop was constructed\n";}
+    Bishop(PieceInfo info) : ChessPiece(info) {file_log << "Bishop was constructed\n";}
     ~Bishop() {file_log << "Bishop was deconstructed\n";}
 
-    std::vector<possible_move> PossibleMovement(Board* board) override {
-        std::vector<possible_move> can_move;
-        int to_v, to_h;
+    std::vector<ChessMove> PossibleMovement(Board* board) override {
+        std::vector<ChessMove> can_move;
+        ChessMove this_move;
         for (int v_delta : {-1, 1}) {
             for (int h_delta : {-1, 1}) {
-                to_v = m_v + v_delta;
-                to_h = m_h + h_delta;
-                while (board->IsMovable(to_v, to_h)) {
-                    can_move.push_back({to_v, to_h});
-                    to_v += v_delta;
-                    to_h += h_delta;
+                this_move.square = {m_square.v + v_delta, m_square.h + h_delta};
+                while (board->IsMovable(this_move.square)) {
+                    can_move.push_back(this_move);
+                    this_move.square.v += v_delta;
+                    this_move.square.h += h_delta;
                 }
-                if (board->IsCapturable(to_v, to_h, m_color))
-                    can_move.push_back({to_v, to_h});
+                if (board->IsCapturable(this_move.square, m_color)) {
+                    this_move.captured_piece = board->GetPiecePtr(this_move.square);
+                    can_move.push_back(this_move);
+                    this_move.captured_piece = nullptr;
+                }
             }
         }
         return can_move;
     }
 
-    bool IsChecking(Board* board, int end_v, int end_h) override {
-        int to_v = m_v, to_h = m_h;
+    bool IsChecking(Board* board, Square king_square) override {
+        Square to_square = m_square;
         int v_delta = 1, h_delta = 1;
-        if (to_v > end_v) v_delta = -1;
-        if (to_h > end_h) h_delta = -1;
-        to_v += v_delta;
-        to_h += h_delta;
-        while(to_v != end_v && to_h != end_h && board->IsMovable(to_v, to_h)) {
-            to_v += v_delta;
-            to_h += h_delta;
+        if (to_square.v > king_square.v) v_delta = -1;
+        if (to_square.h > king_square.h) h_delta = -1;
+        to_square.v += v_delta;
+        to_square.h += h_delta;
+        while(to_square.v != king_square.v && to_square.h != king_square.h && board->IsMovable(to_square)) {
+            to_square.v += v_delta;
+            to_square.h += h_delta;
         }
-        return to_v == end_v && to_h == end_h;
+        return to_square == king_square;
     }
 };
 
 class Rook : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    Rook(piece_info info) : ChessPiece(info) {file_log << "Rook was constructed\n";}
+    Rook(PieceInfo info) : ChessPiece(info) {file_log << "Rook was constructed\n";}
     ~Rook() {file_log << "Rook was deconstructed\n";}
 
-    std::vector<possible_move> PossibleMovement(Board* board) override {
-        std::vector<possible_move> can_move;
-        int to_v, to_h;
+    std::vector<ChessMove> PossibleMovement(Board* board) override {
+        std::vector<ChessMove> can_move;
+        ChessMove this_move;
         for (int v_delta : {-1, 1}) {
-            to_v = m_v + v_delta;
-            to_h = m_h;
-            while (board->IsMovable(to_v, to_h)) {
-                can_move.push_back({to_v, to_h});
-                to_v += v_delta;
+            this_move.square = {m_square.v + v_delta, m_square.h};
+            while (board->IsMovable(this_move.square)) {
+                can_move.push_back(this_move);
+                this_move.square.v += v_delta;
             }
-            if (board->IsCapturable(to_v, to_h, m_color))
-                can_move.push_back({to_v, to_h});
+            if (board->IsCapturable(this_move.square, m_color)) {
+                this_move.captured_piece = board->GetPiecePtr(this_move.square);
+                can_move.push_back(this_move);
+                this_move.captured_piece = nullptr;
+            }
         }
         for (int h_delta : {-1, 1}) {
-            to_v = m_v;
-            to_h = m_h + h_delta;
-            while (board->IsMovable(to_v, to_h)) {
-                can_move.push_back({to_v, to_h});
-                to_h += h_delta;
+            this_move.square = {m_square.v, m_square.h + h_delta};
+            while (board->IsMovable(this_move.square)) {
+                can_move.push_back(this_move);
+                this_move.square.h += h_delta;
             }
-            if (board->IsCapturable(to_v, to_h, m_color))
-                can_move.push_back({to_v, to_h});
+            if (board->IsCapturable(this_move.square, m_color)) {
+                this_move.captured_piece = board->GetPiecePtr(this_move.square);
+                can_move.push_back(this_move);
+                this_move.captured_piece = nullptr;
+            }
         }
         return can_move;
     }
 
-    bool IsChecking(Board* board, int end_v, int end_h) override {
-        int to_v = m_v, to_h = m_h;
+    bool IsChecking(Board* board, Square king_square) override {
+        Square to_square = m_square;
         int v_delta = 0, h_delta = 0;
-        if (to_v < end_v) v_delta = 1;
-        else if (to_v > end_v) v_delta = -1;
-        if (to_h < end_h) h_delta = 1;
-        else if (to_h > end_h) h_delta = -1;
+        if (to_square.v < king_square.v) v_delta = 1;
+        else if (to_square.v > king_square.v) v_delta = -1;
+        if (to_square.h < king_square.h) h_delta = 1;
+        else if (to_square.h > king_square.h) h_delta = -1;
         if (abs(v_delta) + abs(h_delta) != 1) return false;
-        to_v += v_delta;
-        to_h += h_delta;
-        while(to_v != end_v && to_h != end_h && board->IsMovable(to_v, to_h)) {
-            to_v += v_delta;
-            to_h += h_delta;
+        to_square.v += v_delta;
+        to_square.h += h_delta;
+        while(to_square.v != king_square.v && to_square.h != king_square.h && board->IsMovable(to_square)) {
+            to_square.v += v_delta;
+            to_square.h += h_delta;
         }
-        return to_v == end_v && to_h == end_h;
+        return to_square == king_square;
     }
 };
 
 class Queen : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    Queen(piece_info info) : ChessPiece(info) {file_log << "Queen was constructed\n";}
+    Queen(PieceInfo info) : ChessPiece(info) {file_log << "Queen was constructed\n";}
     ~Queen() {file_log << "Queen was deconstructed\n";}
 
-    std::vector<possible_move> PossibleMovement(Board* board) override {
-        std::vector<possible_move> can_move;
-        int to_v, to_h;
+    std::vector<ChessMove> PossibleMovement(Board* board) override {
+        std::vector<ChessMove> can_move;
+        ChessMove this_move;
         for (int v_delta : {-1, 0, 1}) {
             for (int h_delta : {-1, 0, 1}) {
-                to_v = m_v + v_delta;
-                to_h = m_h + h_delta;
-                while (board->IsMovable(to_v, to_h)) {
-                    can_move.push_back({to_v, to_h});
-                    to_v += v_delta;
-                    to_h += h_delta;
+                this_move.square = {m_square.v + v_delta, m_square.h + h_delta};
+                while (board->IsMovable(this_move.square)) {
+                    can_move.push_back(this_move);
+                    this_move.square.v += v_delta;
+                    this_move.square.h += h_delta;
                 }
-                if (board->IsCapturable(to_v, to_h, m_color))
-                    can_move.push_back({to_v, to_h});
+                if (board->IsCapturable(this_move.square, m_color)) {
+                    this_move.captured_piece = board->GetPiecePtr(this_move.square);
+                    can_move.push_back(this_move);
+                    this_move.captured_piece = nullptr;
+                }
             }
         }
         return can_move;
     }
 
-    bool IsChecking(Board* board, int end_v, int end_h) override {
-        int to_v = m_v, to_h = m_h;
+    bool IsChecking(Board* board, Square king_square) override {
+        Square to_square = m_square;
         int v_delta = 0, h_delta = 0;
-        if (to_v < end_v) v_delta = 1;
-        else if (to_v > end_v) v_delta = -1;
-        if (to_h < end_h) h_delta = 1;
-        else if (to_h > end_h) h_delta = -1;
-        to_v += v_delta;
-        to_h += h_delta;
-        while(to_v != end_v && to_h != end_h && board->IsMovable(to_v, to_h)) {
-            to_v += v_delta;
-            to_h += h_delta;
+        if (to_square.v < king_square.v) v_delta = 1;
+        else if (to_square.v > king_square.v) v_delta = -1;
+        if (to_square.h < king_square.h) h_delta = 1;
+        else if (to_square.h > king_square.h) h_delta = -1;
+        to_square.v += v_delta;
+        to_square.h += h_delta;
+        while(to_square.v != king_square.v && to_square.h != king_square.h && board->IsMovable(to_square)) {
+            to_square.v += v_delta;
+            to_square.h += h_delta;
         }
-        return to_v == end_v && to_h == end_h;
+        return to_square == king_square;
     }
 };
+}

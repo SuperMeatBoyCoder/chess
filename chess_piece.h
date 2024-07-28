@@ -1,18 +1,19 @@
 #include "structs.h"
 
+namespace Chess {
 class ChessPiece {
     // v = verical, h = horizontal
     // verticals is used first due to traditional notation in chess
 protected:
-    int m_v, m_h;
+    Square m_square;
     const char m_color, m_figure_type;
 public:
     int times_moved = 0;
 
-    ChessPiece(piece_info info) : m_v(info.v), m_h(info.h), m_color(info.color), m_figure_type(info.figure_type) {}
+    ChessPiece(PieceInfo info) : m_square(info.square), m_color(info.color), m_figure_type(info.figure_type) {}
 
-    std::pair<int, int> GetPosition() {
-        return std::pair(m_v, m_h);
+    Square GetPosition() {
+        return m_square;
     }
 
     char GetType() {
@@ -23,17 +24,16 @@ public:
         return m_color;
     }
     
-    void UpdatePosition(int v, int h) {
-        m_v = v;
-        m_h = h;
+    void UpdatePosition(Square new_square) {
+        m_square = new_square;
     }
 
-    virtual std::vector<possible_move> PossibleMovement(Board* board) {
+    virtual std::vector<ChessMove> PossibleMovement(Board* board) {
         return {};
     }
 
-    virtual bool IsChecking(Board* board, int end_v, int end_h) {
+    virtual bool IsChecking(Board* board, Square king_square) {
         return false;
     }
-
 };
+}

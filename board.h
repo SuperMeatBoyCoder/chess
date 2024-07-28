@@ -1,14 +1,17 @@
 #pragma once
 #include "chess_piece.h"
 
+namespace Chess {
 class Board {
+    // v = verical, h = horizontal
+    // verticals is used first due to traditional notation in chess
 private:
-    std::vector<std::vector<std::shared_ptr<ChessPiece>>> chess_table;
-    std::vector<chess_move> move_log;
-    std::shared_ptr<ChessPiece> white_king, black_king = nullptr;
+    std::vector<std::shared_ptr<ChessPiece>> m_chess_table;
+    std::vector<ChessMove> m_move_log;
+    std::shared_ptr<ChessPiece> m_white_king, m_black_king = nullptr;
 public:
     Board() {
-        chess_table.resize(9, std::vector<std::shared_ptr<ChessPiece>>(9, nullptr));
+        m_chess_table.resize(81, nullptr);
         file_log << "Board was constructed\n";
     }
     
@@ -17,125 +20,120 @@ public:
     }
 
     void AddFigure(std::shared_ptr<ChessPiece> new_piece) {
-        int v, h;
-        std::tie(v, h) = new_piece->GetPosition();
-        chess_table[v][h] = new_piece;
+        Square square;
+        square = new_piece->GetPosition();
+        m_chess_table[square] = new_piece;
         if (new_piece->GetType() == 'K') {
             if (new_piece->GetColor() == 'W')
-                white_king = new_piece;
+                m_white_king = new_piece;
             else
-                black_king = new_piece;
+                m_black_king = new_piece;
         }
     }
 
-    bool IsEmpty(int v, int h) {
-        return chess_table[v][h] == nullptr;
+    bool IsEmpty(Square square) {
+        return m_chess_table[square] == nullptr;
+    }
+    
+    // Returns pointer to the piece or nullptr if the square is empty
+    std::shared_ptr<ChessPiece> GetPiecePtr(Square square) {
+        return m_chess_table[square];
     }
 
-    std::shared_ptr<ChessPiece> GetFigurePtr(int v, int h) {
-        return chess_table[v][h];
+    char GetColor(Square square) {
+        return m_chess_table[square]->GetColor();
     }
 
-    char GetColor(int v, int h) {
-        return chess_table[v][h]->GetColor();
+    char GetType(Square square) {
+        return m_chess_table[square]->GetType();
     }
 
-    char GetType(int v, int h) {
-        return chess_table[v][h]->GetType();
+    ChessMove GetLastMove() {
+        return m_move_log.back();
     }
 
-    chess_move GetLastMove() {
-        return move_log.back();
+    bool Isinside(Square square) {
+        return 1 <= square.v && square.v <= 8 && 1 <= square.h && square.h <= 8;
     }
 
-    bool Isinside(int v, int h) {
-        return 1 <= v && v <= 8 && 1 <= h && h <= 8;
+    bool IsMovable(Square square) {
+        return Isinside(square) && IsEmpty(square);
     }
 
-    bool IsMovable(int v, int h) {
-        return Isinside(v, h) && IsEmpty(v, h);
+    bool IsCapturable(Square square, char color) {
+        return Isinside(square) && !IsEmpty(square) && GetColor(square) != color;
     }
 
-    bool IsCapturable(int v, int h, char color) {
-        return Isinside(v, h) && !IsEmpty(v, h) && GetColor(v, h) != color;
-    }
-
-    bool isMovableOrCapturable(int v, int h, char color) {
-        return Isinside(v, h) && (IsEmpty(v, h) || GetColor(v, h) != color);
+    bool isMovableOrCapturable(Square square, char color) {
+        return Isinside(square) && (IsEmpty(square) || GetColor(square) != color);
     }
 
     bool CheckForCheck(char king_color) {
-        int king_v, king_h;
+        Square king_square;
         if (king_color == 'B') {
-            std::tie(king_v, king_h) = black_king->GetPosition();
+            king_square = m_black_king->GetPosition();
         }
         else {
-            std::tie(king_v, king_h) = white_king->GetPosition();
+            king_square = m_white_king->GetPosition();
         }
         for (int v = 1; v <= 8; v++) {
             for (int h = 1; h <= 8; h++) {
-                if (!IsEmpty(v, h) && chess_table[v][h]->GetColor() != king_color && chess_table[v][h]->IsChecking(this, king_v, king_h))
+                if (!IsEmpty({v, h}) && m_chess_table[v * 8 + h]->GetColor() != king_color && m_chess_table[v * 8 + h]->IsChecking(this, king_square))
                     return true;
             }
         }
         return false;
     }
     
-    chess_move Move(std::shared_ptr<ChessPiece> moving_piece, possible_move move, bool log_needed = true) {
-        auto [start_v, start_h] = moving_piece->GetPosition();
-        auto [end_v, end_h, special] = move;
+    void Move(ChessMove& move, bool just_checking = false) {
+        auto [end_square, captured_piece, moving_piece, special, done] = move;
+        Square start_square = moving_piece->GetPosition();
+        assert(!done);
 
-        moving_piece->UpdatePosition(end_v, end_h);
+        moving_piece->UpdatePosition(end_square);
         moving_piece->times_moved++;
-
-        chess_move this_move;
+        m_chess_table[start_square] = nullptr;
+        m_chess_table[end_square] = moving_piece;
 
         switch (special) {
-        // normal move
-        case 0:
-            this_move = {moving_piece, start_v, start_h, chess_table[end_v][end_h]};
+        case NORMAL_MOVE:
+
             break;
-        // Castle
-        case 1:
+        case CASTLE:
             break;
-        //En Passaunt
-        case 2:
-            this_move = {moving_piece, start_v, start_h, chess_table[end_v][start_h], 2};
-            chess_table[end_v][start_h] = nullptr;
+        case EN_PASSANT:
+            m_chess_table[end_square.v * 8 + start_square.h] = nullptr;
             break;
         default:
             throw "invalid special move";
         }
 
-        chess_table[start_v][start_h] = nullptr;
-        chess_table[end_v][end_h] = moving_piece;
+        move.square = start_square;
+        move.done = true;
 
-        if (log_needed) {
-            move_log.push_back(this_move);
+        if (!just_checking) {
+            m_move_log.push_back(move);
         }
-        return this_move;
     }
 
-    void Revert(chess_move last_move) {
-        int start_v = last_move.start_v;
-        int start_h = last_move.start_h;
-        auto [end_v, end_h] = last_move.moved->GetPosition();
-        last_move.moved->UpdatePosition(start_v, start_h);
-        chess_table[start_v][start_h] = last_move.moved;
-        last_move.moved->times_moved--;
+    void Revert(ChessMove& last_move) {
+        auto [start_square, captured_piece, moving_piece, special, done] = last_move;
+        Square end_square = moving_piece->GetPosition();
+        assert(done);
 
-        switch (last_move.special) {
-        // normal move
-        case 0:
-            chess_table[end_v][end_h] = last_move.captured;
+        moving_piece->UpdatePosition(start_square);
+        m_chess_table[start_square] = moving_piece;
+        moving_piece->times_moved--;
+
+        switch (special) {
+        case NORMAL_MOVE:
+            m_chess_table[end_square] = captured_piece;
             break;
-        // Castle
-        case 1:
+        case CASTLE:
             break;
-        //En Passaunt
-        case 2:
-            chess_table[end_v][end_h] = nullptr;
-            chess_table[end_v][start_h] = last_move.captured;
+        case EN_PASSANT:
+            m_chess_table[end_square] = nullptr;
+            m_chess_table[end_square.v * 8 + start_square.h] = captured_piece;
             break;
         default:
             throw "invalid special move in revert";
@@ -145,14 +143,16 @@ public:
     // most heavy code
 
     // writes possible moves in the provided vector
-    void PossibleMovementChecked(std::shared_ptr<ChessPiece> this_figure, std::vector<possible_move>& can_move_checked) {
-        int piece_v, piece_h;
-        std::tie(piece_v, piece_h) = this_figure->GetPosition();
-        for (possible_move move : this_figure->PossibleMovement(this)) {
-            chess_move this_move = Move(this_figure, move, false);
+    void PossibleMovementChecked(std::shared_ptr<ChessPiece> this_figure, std::vector<ChessMove>& can_move_checked) {
+        Square piece_square = this_figure->GetPosition();
+        for (ChessMove move : this_figure->PossibleMovement(this)) {
+            move.moving_piece = this_figure;
+            ChessMove helper_move = move;
+            Move(helper_move, true);
             if (!CheckForCheck(this_figure->GetColor()))
                 can_move_checked.push_back(move);
-            Revert(this_move);
+            Revert(helper_move);
         }
     }
 };
+}
