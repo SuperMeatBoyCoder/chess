@@ -1,4 +1,3 @@
-#include "global_config.h"
 
 namespace Chess {
 class Board;

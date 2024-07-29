@@ -1,5 +1,4 @@
-#include "global_config.h"
-#include "board.h"
+#include "config.h"
 #include "pieces.h"
 
 namespace Chess {
@@ -24,6 +23,7 @@ private:
     void CreateBoard() {
         for (const PieceInfo raw_piece : default_board_config) {
             std::shared_ptr<ChessPiece> piece;
+            // I guess it's the only way
             switch (raw_piece.figure_type) {
                 case 'K':
                     piece = std::make_shared<King>(raw_piece);
@@ -76,7 +76,8 @@ public:
         std::string notation;
         std::cin >> notation;
         if (notation.size() == 1) {
-            running = false;
+            if (notation == "0")
+                running = false;
             return;
         }
         Square input_square = {notation[0] - 'a' + 1, notation[1] - '0'};
@@ -108,7 +109,8 @@ public:
         std::cout << "\nChoose move (chess notation):\n";
         std::cin >> notation;
         if (notation.size() == 1) {
-            running = false;
+            if (notation == "0")
+                running = false;
             return;
         }
         ChessMove input_move = {notation[0] - 'a' + 1, notation[1] - '0'};

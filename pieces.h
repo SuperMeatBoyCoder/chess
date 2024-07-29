@@ -7,7 +7,7 @@ public:
     King(PieceInfo info) : ChessPiece(info) {file_log << "King was constructed\n";}
     ~King() {file_log << "King was deconstructed\n";}
 
-    std::vector<ChessMove> PossibleMovement(Chess::Board* board) override {
+    std::vector<ChessMove> PossibleMovement(Board* board) override {
         std::vector<ChessMove> can_move;
         ChessMove this_move;
         for (int v_delta : {-1, 0, 1}) {
@@ -17,6 +17,25 @@ public:
                     this_move.captured_piece = board->GetPiecePtr(this_move.square);
                     can_move.push_back(this_move);
                     this_move.captured_piece = nullptr;
+                }
+            }
+        }
+        if (times_moved == 0) {
+            for (int rook_v : {1, 8}) {
+                this_move.special = rook_v == 1 ? LONG_CASTLE : SHORT_CASTLE;
+                bool pieces_between = false;
+                this_move.square = {rook_v, m_square.h};
+                std::shared_ptr<ChessPiece> rook = board->GetPiecePtr(this_move.square);
+                if (rook->GetType() == 'R' && rook->times_moved == 0) {
+                    for (int v = std::min(m_square.v, rook_v) + 1; v < std::max(rook_v, m_square.v); v++) {
+                        if (!board->IsEmpty({v, m_square.h})) pieces_between = true;
+                    }
+                    if (!pieces_between) {
+                        can_move.push_back(this_move);
+                        if (rook_v == 1) this_move.square.v++;
+                        else this_move.square.v--;
+                        can_move.push_back(this_move);
+                    }
                 }
             }
         }
@@ -60,10 +79,10 @@ public:
 
             // En Passant
             if (board->IsCapturable({this_move.square.v, m_square.h}, m_color) && board->IsMovable(this_move.square)) {
-                std::shared_ptr<ChessPiece> other_piece = board->GetPiecePtr({this_move.square.v, m_square.h});
+                std::shared_ptr<ChessPiece> other_pawn = board->GetPiecePtr({this_move.square.v, m_square.h});
                 ChessMove last_move = board->GetLastMove();
-                if (other_piece->GetType() == 'P' && other_piece->times_moved == 1 && last_move.moving_piece == other_piece) {
-                    this_move.captured_piece = other_piece;
+                if (other_pawn->GetType() == 'P' && other_pawn->times_moved == 1 && last_move.moving_piece == other_pawn) {
+                    this_move.captured_piece = other_pawn;
                     this_move.special = EN_PASSANT;
                     can_move.push_back(this_move);
                     this_move.captured_piece = nullptr;

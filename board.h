@@ -1,4 +1,3 @@
-#pragma once
 #include "chess_piece.h"
 
 namespace Chess {
@@ -8,7 +7,8 @@ class Board {
 private:
     std::vector<std::shared_ptr<ChessPiece>> m_chess_table;
     std::vector<ChessMove> m_move_log;
-    std::shared_ptr<ChessPiece> m_white_king, m_black_king = nullptr;
+    std::shared_ptr<ChessPiece> m_white_king, m_black_king;
+
 public:
     Board() {
         m_chess_table.resize(81, nullptr);
@@ -30,10 +30,6 @@ public:
                 m_black_king = new_piece;
         }
     }
-
-    bool IsEmpty(Square square) {
-        return m_chess_table[square] == nullptr;
-    }
     
     // Returns pointer to the piece or nullptr if the square is empty
     std::shared_ptr<ChessPiece> GetPiecePtr(Square square) {
@@ -50,6 +46,10 @@ public:
 
     ChessMove GetLastMove() {
         return m_move_log.back();
+    }
+
+    bool IsEmpty(Square square) {
+        return m_chess_table[square] == nullptr;
     }
 
     bool Isinside(Square square) {
@@ -85,21 +85,21 @@ public:
         return false;
     }
     
-    void Move(ChessMove& move, bool just_checking = false) {
+    ChessMove Move(ChessMove move, bool just_checking = false) {
         auto [end_square, captured_piece, moving_piece, special, done] = move;
         Square start_square = moving_piece->GetPosition();
         assert(!done);
 
-        moving_piece->UpdatePosition(end_square);
-        moving_piece->times_moved++;
-        m_chess_table[start_square] = nullptr;
-        m_chess_table[end_square] = moving_piece;
-
         switch (special) {
         case NORMAL_MOVE:
-
             break;
-        case CASTLE:
+        case SHORT_CASTLE:
+            end_square.v = 7;
+            Move({6, end_square.h, nullptr, GetPiecePtr({8, end_square.h})}, true);
+            break;
+        case LONG_CASTLE:
+            end_square.v = 3;
+            Move({4, end_square.h, nullptr, GetPiecePtr({1, end_square.h})}, true);
             break;
         case EN_PASSANT:
             m_chess_table[end_square.v * 8 + start_square.h] = nullptr;
@@ -108,36 +108,48 @@ public:
             throw "invalid special move";
         }
 
+        moving_piece->UpdatePosition(end_square);
+        moving_piece->times_moved++;
+        m_chess_table[start_square] = nullptr;
+        m_chess_table[end_square] = moving_piece;
+
         move.square = start_square;
         move.done = true;
 
         if (!just_checking) {
             m_move_log.push_back(move);
         }
+        return move;
     }
 
-    void Revert(ChessMove& last_move) {
+    void Revert(ChessMove last_move) {
         auto [start_square, captured_piece, moving_piece, special, done] = last_move;
         Square end_square = moving_piece->GetPosition();
         assert(done);
 
-        moving_piece->UpdatePosition(start_square);
-        m_chess_table[start_square] = moving_piece;
-        moving_piece->times_moved--;
-
         switch (special) {
         case NORMAL_MOVE:
-            m_chess_table[end_square] = captured_piece;
             break;
-        case CASTLE:
+        case SHORT_CASTLE:
+            end_square.v = 7;
+            Revert({8, end_square.h, nullptr, GetPiecePtr({6, end_square.h}), NORMAL_MOVE, true});
+            break;
+        case LONG_CASTLE:
+            end_square.v = 3;
+            Revert({1, end_square.h, nullptr, GetPiecePtr({4, end_square.h}), NORMAL_MOVE, true});
             break;
         case EN_PASSANT:
-            m_chess_table[end_square] = nullptr;
             m_chess_table[end_square.v * 8 + start_square.h] = captured_piece;
+            captured_piece = nullptr;
             break;
         default:
             throw "invalid special move in revert";
         }
+
+        moving_piece->UpdatePosition(start_square);
+        m_chess_table[start_square] = moving_piece;
+        moving_piece->times_moved--;
+        m_chess_table[end_square] = captured_piece;
     }
 
     // most heavy code
@@ -147,8 +159,7 @@ public:
         Square piece_square = this_figure->GetPosition();
         for (ChessMove move : this_figure->PossibleMovement(this)) {
             move.moving_piece = this_figure;
-            ChessMove helper_move = move;
-            Move(helper_move, true);
+            ChessMove helper_move = Move(move, true);
             if (!CheckForCheck(this_figure->GetColor()))
                 can_move_checked.push_back(move);
             Revert(helper_move);
