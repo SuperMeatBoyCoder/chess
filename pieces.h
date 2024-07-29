@@ -4,8 +4,8 @@ namespace Chess {
 class King : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    King(PieceInfo info) : ChessPiece(info) {file_log << "King was constructed\n";}
-    ~King() {file_log << "King was deconstructed\n";}
+    King(PieceInfo info) : ChessPiece(info) {log("King was constructed");}
+    ~King() {log("King was deconstructed");}
 
     std::vector<ChessMove> PossibleMovement(Board* board) override {
         std::vector<ChessMove> can_move;
@@ -51,8 +51,8 @@ public:
 class Pawn : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    Pawn(PieceInfo info) : ChessPiece(info) {file_log << "Pawn was constructed\n";}
-    ~Pawn() {file_log << "Pawn was deconstructed\n";}
+    Pawn(PieceInfo info) : ChessPiece(info) {log("Pawn was constructed");}
+    ~Pawn() {log("Pawn was deconstructed");}
 
     std::vector<ChessMove> PossibleMovement(Board* board) override {
         std::vector<ChessMove> can_move;
@@ -62,7 +62,11 @@ public:
         ChessMove this_move = {m_square.v, m_square.h + h_delta};
 
         if (board->IsMovable(this_move.square)) {
+            if (this_move.square.h == 8 || this_move.square.h == 1) {
+                this_move.special = PROMOTION;
+            }
             can_move.push_back(this_move);
+            this_move.special = NORMAL_MOVE;
             this_move.square.h += h_delta;
             if (times_moved == 0 && board->IsMovable(this_move.square)) {
                 can_move.push_back(this_move);
@@ -107,8 +111,8 @@ public:
 class Night : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    Night(PieceInfo info) : ChessPiece(info) {file_log << "Night was constructed\n";}
-    ~Night() {file_log << "Night was deconstructed\n";}
+    Night(PieceInfo info) : ChessPiece(info) {log("Night was constructed");}
+    ~Night() {log("Night was deconstructed");}
 
     std::vector<ChessMove> PossibleMovement(Board* board) override {
         std::vector<ChessMove> can_move;
@@ -143,8 +147,8 @@ public:
 class Bishop : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    Bishop(PieceInfo info) : ChessPiece(info) {file_log << "Bishop was constructed\n";}
-    ~Bishop() {file_log << "Bishop was deconstructed\n";}
+    Bishop(PieceInfo info) : ChessPiece(info) {log("Bishop was constructed");}
+    ~Bishop() {log("Bishop was deconstructed");}
 
     std::vector<ChessMove> PossibleMovement(Board* board) override {
         std::vector<ChessMove> can_move;
@@ -185,8 +189,8 @@ public:
 class Rook : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    Rook(PieceInfo info) : ChessPiece(info) {file_log << "Rook was constructed\n";}
-    ~Rook() {file_log << "Rook was deconstructed\n";}
+    Rook(PieceInfo info) : ChessPiece(info) {log("Rook was constructed");}
+    ~Rook() {log("Rook was deconstructed");}
 
     std::vector<ChessMove> PossibleMovement(Board* board) override {
         std::vector<ChessMove> can_move;
@@ -239,8 +243,8 @@ public:
 class Queen : public ChessPiece {
 public:
     using ChessPiece::ChessPiece;
-    Queen(PieceInfo info) : ChessPiece(info) {file_log << "Queen was constructed\n";}
-    ~Queen() {file_log << "Queen was deconstructed\n";}
+    Queen(PieceInfo info) : ChessPiece(info) {log("Queen was constructed");}
+    ~Queen() {log("Queen was deconstructed");}
 
     std::vector<ChessMove> PossibleMovement(Board* board) override {
         std::vector<ChessMove> can_move;

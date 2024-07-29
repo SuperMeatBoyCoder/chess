@@ -12,11 +12,11 @@ private:
 public:
     Board() {
         m_chess_table.resize(81, nullptr);
-        file_log << "Board was constructed\n";
+        log("Board was constructed");
     }
     
     ~Board() {
-        file_log << "Board was deconstructed\n";
+        log("Board was deconstructed\n");
     }
 
     void AddFigure(std::shared_ptr<ChessPiece> new_piece) {
@@ -95,14 +95,19 @@ public:
             break;
         case SHORT_CASTLE:
             end_square.v = 7;
-            Move({6, end_square.h, nullptr, GetPiecePtr({8, end_square.h})}, true);
+            Move({{6, end_square.h}, nullptr, GetPiecePtr({8, end_square.h})}, true);
             break;
         case LONG_CASTLE:
             end_square.v = 3;
-            Move({4, end_square.h, nullptr, GetPiecePtr({1, end_square.h})}, true);
+            Move({{4, end_square.h}, nullptr, GetPiecePtr({1, end_square.h})}, true);
             break;
         case EN_PASSANT:
             m_chess_table[end_square.v * 8 + start_square.h] = nullptr;
+            break;
+        case PROMOTION:
+            if (!just_checking) {
+                //promotion
+            }
             break;
         default:
             throw "invalid special move";
@@ -132,11 +137,11 @@ public:
             break;
         case SHORT_CASTLE:
             end_square.v = 7;
-            Revert({8, end_square.h, nullptr, GetPiecePtr({6, end_square.h}), NORMAL_MOVE, true});
+            Revert({{8, end_square.h}, nullptr, GetPiecePtr({6, end_square.h}), NORMAL_MOVE, true});
             break;
         case LONG_CASTLE:
             end_square.v = 3;
-            Revert({1, end_square.h, nullptr, GetPiecePtr({4, end_square.h}), NORMAL_MOVE, true});
+            Revert({{1, end_square.h}, nullptr, GetPiecePtr({4, end_square.h}), NORMAL_MOVE, true});
             break;
         case EN_PASSANT:
             m_chess_table[end_square.v * 8 + start_square.h] = captured_piece;

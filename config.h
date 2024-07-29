@@ -8,7 +8,7 @@
 
 std::ofstream file_log("log.txt");
 
-#define log(x) << x << std::endl
+#define log(x) file_log << x << std::endl
 #define debug(x) file_log << std::filesystem::path(__FILE__).filename() << ' ' << __LINE__ << ": " << (#x) << " = " << x << std::endl
 
 template <class T1, class T2>

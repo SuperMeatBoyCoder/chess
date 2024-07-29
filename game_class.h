@@ -53,12 +53,12 @@ private:
 public:
     Game() {
         CreateBoard();
-        file_log << "Game was constructed" << std::endl;
+        log("Game was constructed");
         std::cout << "Type 0 to exit\n";
     }
 
     ~Game() {
-        file_log << "Game was deconstructed" << std::endl;
+        log("Game was deconstructed");
     }
 
     void Update() {
