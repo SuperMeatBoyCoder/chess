@@ -78,7 +78,8 @@ public:
         }
         for (int v = 1; v <= 8; v++) {
             for (int h = 1; h <= 8; h++) {
-                if (!IsEmpty({v, h}) && m_chess_table[v * 8 + h]->GetColor() != king_color && m_chess_table[v * 8 + h]->IsChecking(this, king_square))
+                std::shared_ptr<ChessPiece> this_piece = GetPiecePtr({v, h});
+                if (this_piece != nullptr && this_piece->GetColor() != king_color && this_piece->IsChecking(this, king_square))
                     return true;
             }
         }
@@ -105,9 +106,8 @@ public:
             m_chess_table[end_square.v * 8 + start_square.h] = nullptr;
             break;
         case PROMOTION:
-            if (!just_checking) {
-                //promotion
-            }
+            // in this case I expect moving_piece to be a new piece
+            assert(moving_piece->GetType() != 'P');
             break;
         default:
             throw "invalid special move";
@@ -147,28 +147,64 @@ public:
             m_chess_table[end_square.v * 8 + start_square.h] = captured_piece;
             captured_piece = nullptr;
             break;
+        case PROMOTION:
+            // in this case I expect moving_piece to be a pawn
+            assert(moving_piece->GetType() == 'P');
+            break;
         default:
             throw "invalid special move in revert";
         }
 
-        moving_piece->UpdatePosition(start_square);
-        m_chess_table[start_square] = moving_piece;
-        moving_piece->times_moved--;
         m_chess_table[end_square] = captured_piece;
+        moving_piece->UpdatePosition(start_square);
+        moving_piece->times_moved--;
+        m_chess_table[start_square] = moving_piece;
     }
 
-    // most heavy code
-
     // writes possible moves in the provided vector
-    void PossibleMovementChecked(std::shared_ptr<ChessPiece> this_figure, std::vector<ChessMove>& can_move_checked) {
-        Square piece_square = this_figure->GetPosition();
-        for (ChessMove move : this_figure->PossibleMovement(this)) {
-            move.moving_piece = this_figure;
-            ChessMove helper_move = Move(move, true);
-            if (!CheckForCheck(this_figure->GetColor()))
+    void PossibleMovementChecked(std::shared_ptr<ChessPiece> this_piece, std::vector<ChessMove>& can_move_checked) {
+        Square piece_square = this_piece->GetPosition();
+        for (ChessMove& move : this_piece->PossibleMovement(this)) {
+            move.moving_piece = this_piece;
+            if (IsValidMove(this_piece, move))
                 can_move_checked.push_back(move);
-            Revert(helper_move);
         }
+    }
+
+    bool IsValidMove(std::shared_ptr<ChessPiece> this_piece, const ChessMove& move) {
+        ChessMove helper_move = move;
+        if (helper_move.special == PROMOTION)
+            // promotion being just a movement of pawn can't influence check to the king
+            helper_move.special = NORMAL_MOVE;
+        else if (helper_move.special == SHORT_CASTLE) {
+            // castle is possible only if starting square, end square and squre between them are not attacked.
+            // here we check starting square and square between
+            helper_move.special = NORMAL_MOVE;
+            for (int v : {5, 6}) {
+                helper_move.square.v = v;
+                if (!IsValidMove(this_piece, helper_move))
+                    return false;
+            }
+            helper_move.square.v = 7;
+            helper_move.special = SHORT_CASTLE;
+        }
+        else if (helper_move.special == LONG_CASTLE) {
+            // same as short castle
+            helper_move.special = NORMAL_MOVE;
+            for (int v : {4, 5}) {
+                helper_move.square.v = v;
+                if (!IsValidMove(this_piece, helper_move))
+                    return false;
+            }
+            helper_move.square.v = 5;
+            helper_move.special = SHORT_CASTLE;
+        }
+        helper_move = Move(helper_move, true);
+        bool valid = true;
+        if (CheckForCheck(this_piece->GetColor()))
+            valid = false;
+        Revert(helper_move);
+        return valid;
     }
 };
 }

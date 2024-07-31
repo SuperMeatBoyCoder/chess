@@ -32,7 +32,7 @@ public:
                     }
                     if (!pieces_between) {
                         can_move.push_back(this_move);
-                        if (rook_v == 1) this_move.square.v++;
+                        if (rook_v == 1) this_move.square.v += 2;
                         else this_move.square.v--;
                         can_move.push_back(this_move);
                     }
@@ -178,7 +178,7 @@ public:
         if (to_square.h > king_square.h) h_delta = -1;
         to_square.v += v_delta;
         to_square.h += h_delta;
-        while(to_square.v != king_square.v && to_square.h != king_square.h && board->IsMovable(to_square)) {
+        while(to_square != king_square && board->IsMovable(to_square)) {
             to_square.v += v_delta;
             to_square.h += h_delta;
         }
@@ -232,7 +232,7 @@ public:
         if (abs(v_delta) + abs(h_delta) != 1) return false;
         to_square.v += v_delta;
         to_square.h += h_delta;
-        while(to_square.v != king_square.v && to_square.h != king_square.h && board->IsMovable(to_square)) {
+        while(to_square != king_square && board->IsMovable(to_square)) {
             to_square.v += v_delta;
             to_square.h += h_delta;
         }
@@ -276,7 +276,7 @@ public:
         else if (to_square.h > king_square.h) h_delta = -1;
         to_square.v += v_delta;
         to_square.h += h_delta;
-        while(to_square.v != king_square.v && to_square.h != king_square.h && board->IsMovable(to_square)) {
+        while(to_square != king_square && board->IsMovable(to_square)) {
             to_square.v += v_delta;
             to_square.h += h_delta;
         }
