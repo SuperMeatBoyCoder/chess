@@ -10,6 +10,7 @@ public:
     std::vector<ChessMove> PossibleMovement(Board* board) override {
         std::vector<ChessMove> can_move;
         ChessMove this_move;
+        // We check each square in 3x3 area, because the king's square is not movable.
         for (int v_delta : {-1, 0, 1}) {
             for (int h_delta : {-1, 0, 1}) {
                 this_move.square = {m_square.v + v_delta, m_square.h + h_delta};
@@ -20,6 +21,7 @@ public:
                 }
             }
         }
+        // Castle
         if (times_moved == 0) {
             for (int rook_v : {1, 8}) {
                 this_move.special = rook_v == 1 ? LONG_CASTLE : SHORT_CASTLE;

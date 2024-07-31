@@ -28,10 +28,12 @@ public:
         m_square = new_square;
     }
 
+    // returns vector of possible moves without taking into account checks
     virtual std::vector<ChessMove> PossibleMovement(Board* board) {
         return {};
     }
 
+    // is this piece checking other side's king
     virtual bool IsChecking(Board* board, Square king_square) {
         return false;
     }
