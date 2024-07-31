@@ -53,7 +53,7 @@ private:
 public:
     Game() {
         CreateBoard();
-        log("Game was constructed");
+        log("Game was constructed\n");
         std::cout << "Type 0 to exit\n";
     }
 

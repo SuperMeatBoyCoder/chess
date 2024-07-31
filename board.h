@@ -16,7 +16,7 @@ public:
     }
     
     ~Board() {
-        log("Board was deconstructed\n");
+        log("Board was deconstructed");
     }
 
     void AddFigure(std::shared_ptr<ChessPiece> new_piece) {
