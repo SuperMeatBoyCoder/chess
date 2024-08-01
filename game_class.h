@@ -9,6 +9,84 @@ private:
     bool running = false;
     int move = 1;
 
+    void Render() {
+        for (int h = 8; h >= 1; h--) {
+            for (int v = 1; v <= 8; v++) {
+                Square square = {v, h};
+                if (!board.IsEmpty(square))
+                    std::cout << board.GetColor(square) << board.GetType(square) << ' ';
+                else
+                    std::cout << "-- ";
+            }
+            std::cout << '\n';
+        }
+    }
+
+    SharedPiecePtr InputPiece() {
+        std::cout << "Choose a piece: (chess notation):\n";
+        std::string notation;
+        std::cin >> notation;
+        if (notation.size() == 1) {
+            if (notation == "0")
+                running = false;
+            throw "No such square exist!";
+        }
+        Square input_square = {notation[0] - 'a' + 1, notation[1] - '0'};
+        if (!board.Isinside(input_square)) {
+            throw "No such square exist!";
+        }
+        if (board.IsEmpty(input_square)) {   
+            throw "No piece there!";
+        }
+        return board.GetPiecePtr(input_square);
+    }
+
+    ChessMove InputMove(SharedPiecePtr this_piece) {
+        char color = this_piece->GetColor();
+        if ((color == 'W' && move % 2 == 0) ||
+            (color == 'B' && move % 2 == 1)) {
+            throw "it's not your turn!";
+        }
+        std::vector<ChessMove> can_move;
+        board.PossibleMovementChecked(this_piece, can_move);
+        if (can_move.empty()) {
+            throw "This piece can't move!";
+        }
+        std::cout << "Possible moves:\n";
+        for (ChessMove move : can_move) {
+            std::cout << char('a' + move.square.v - 1) << move.square.h << ' ';
+        }
+        std::cout << "\nChoose move (chess notation):\n";
+        std::string notation;
+        std::cin >> notation;
+        if (notation.size() == 1) {
+            if (notation == "0")
+                running = false;
+            throw "No such move!";
+        }
+        ChessMove input_move = {notation[0] - 'a' + 1, notation[1] - '0'};
+        input_move.moving_piece = this_piece;
+        auto it = std::find(can_move.begin(), can_move.end(), input_move);
+        if (it == can_move.end()) {
+            throw "No such move!";
+        }
+        input_move = *it;
+        if (input_move.special == PROMOTION) {
+            // making a new piece based on input in case of promotion
+            std::cout << "Select a piece for promotion:\n";
+            std::string chosen_piece;
+            std::cin >> chosen_piece;
+            char piece_type = std::toupper(chosen_piece[0]);
+            // you can't promote to pawn or king
+            if (piece_type == 'P' || piece_type == 'K') {
+                throw "Invalid piece!";
+            }
+            char piece_color = input_move.moving_piece->GetColor();
+            input_move.moving_piece = board.CreatePiecePtr({this_piece->GetPosition(), piece_color, piece_type});
+        }
+        return input_move;
+    }
+
 public:
     Game() {
         log("Game was constructed\n");
@@ -20,84 +98,22 @@ public:
     }
 
     void Update() {
-        for (int h = 8; h >= 1; h--) {
-            for (int v = 1; v <= 8; v++) {
-                Square square = {v, h};
-                if (!board.IsEmpty(square))
-                    std::cout << board.GetColor(square) << board.GetType(square) << ' ';
-                else
-                    std::cout << "-- ";
-            }
-            std::cout << '\n';
-        }
-        std::cout << "Choose a piece: (chess notation):\n";
-        std::string notation;
-        std::cin >> notation;
-        if (notation.size() == 1) {
-            if (notation == "0")
-                running = false;
+        Render();
+        SharedPiecePtr this_piece;
+        try {
+            this_piece = InputPiece();
+        }   
+        catch (const char* error_message) {
+            std::cout << error_message << '\n';
             return;
         }
-        Square input_square = {notation[0] - 'a' + 1, notation[1] - '0'};
-        if (!board.Isinside(input_square)) {
-            std::cout << "No such place exist!\n";
+        ChessMove input_move;
+        try {
+            input_move = InputMove(this_piece);
+        }
+        catch (const char* error_message) {
+            std::cout << error_message << '\n';
             return;
-        }
-        if (board.IsEmpty(input_square)) {   
-            std::cout << "No piece there!\n";
-            return;
-        }
-        char color = board.GetColor(input_square);
-        if ((color == 'W' && move % 2 == 0) ||
-            (color == 'B' && move % 2 == 1)) {
-            std::cout << "it's not your turn!\n";
-            return;
-        }
-        const std::shared_ptr<ChessPiece> this_piece = board.GetPiecePtr(input_square);
-        std::vector<ChessMove> can_move;
-        board.PossibleMovementChecked(this_piece, can_move);
-        if (can_move.empty()) {
-            std::cout << "This piece can't move!\n";
-            return;
-        }
-        std::cout << "Possible moves:\n";
-        for (ChessMove move : can_move) {
-            std::cout << char('a' + move.square.v - 1) << move.square.h << ' ';
-        }
-        std::cout << "\nChoose move (chess notation):\n";
-        std::cin >> notation;
-        if (notation.size() == 1) {
-            if (notation == "0")
-                running = false;
-            return;
-        }
-        ChessMove input_move = {notation[0] - 'a' + 1, notation[1] - '0'};
-        input_move.moving_piece = this_piece;
-        auto it = std::find(can_move.begin(), can_move.end(), input_move);
-        if (it == can_move.end()) {
-            std::cout << "No such move!\n";
-            return;
-        }
-        input_move = *it;
-        if (input_move.special == PROMOTION) {
-            // making a new piece based on input in case of promotion
-            std::cout << "Select a piece for promotion:\n";
-            std::string chosen_piece;
-            std::cin >> chosen_piece;
-            char piece = toupper(chosen_piece[0]);
-            // you can't promote to pawn or king
-            if (piece == 'P' || piece == 'K') {
-                std::cout << "Invalid piece!\n";
-                return;
-            }
-            char piece_color = input_move.moving_piece->GetColor();
-            try {
-                input_move.moving_piece = board.CreatePiecePtr({this_piece->GetPosition(), piece_color, chosen_piece[0]});
-            }   
-            catch (const char* error_message) {
-                std::cout << error_message << '\n';
-                return;
-            }
         }
         board.Move(input_move);
         move++;
