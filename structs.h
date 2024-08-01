@@ -5,6 +5,8 @@ class Board;
 
 class ChessPiece;
 
+using SharedPiecePtr = std::shared_ptr<Chess::ChessPiece>;
+
 struct Square {
     int v = -1, h = -1;
     bool operator==(const Square other) {
@@ -15,8 +17,8 @@ struct Square {
 
 struct ChessMove {
     Square square;
-    std::shared_ptr<ChessPiece> captured_piece = nullptr;
-    std::shared_ptr<ChessPiece> moving_piece = nullptr;
+    SharedPiecePtr captured_piece = nullptr;
+    SharedPiecePtr moving_piece = nullptr;
     int special = NORMAL_MOVE;
     bool done = false;
 

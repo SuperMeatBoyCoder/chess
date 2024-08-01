@@ -5,9 +5,9 @@ class Board {
     // v = verical, h = horizontal
     // verticals is used first due to traditional notation in chess
 private:
-    std::vector<std::shared_ptr<ChessPiece>> m_chess_table;
+    std::vector<SharedPiecePtr> m_chess_table;
     std::vector<ChessMove> m_move_log;
-    std::shared_ptr<ChessPiece> m_white_king, m_black_king;
+    SharedPiecePtr m_white_king, m_black_king;
 
     const std::vector<PieceInfo> default_board_config = {
         {1, 2, 'W', 'P'}, {2, 2, 'W', 'P'}, {3, 2, 'W', 'P'}, {4, 2, 'W', 'P'},
@@ -23,10 +23,10 @@ private:
 
 public:
 
-    std::shared_ptr<ChessPiece> CreatePiecePtr(PieceInfo raw_piece);
+    SharedPiecePtr CreatePiecePtr(PieceInfo raw_piece);
 
     Board() {
-        m_chess_table.resize(81, nullptr);
+        m_chess_table.resize(73, nullptr);
         for (const PieceInfo raw_piece : default_board_config) {
             AddFigure(CreatePiecePtr(raw_piece));
         }
@@ -37,7 +37,7 @@ public:
         log("Board was deconstructed");
     }
 
-    void AddFigure(std::shared_ptr<ChessPiece> new_piece) {
+    void AddFigure(SharedPiecePtr new_piece) {
         Square square;
         square = new_piece->GetPosition();
         m_chess_table[square] = new_piece;
@@ -50,7 +50,7 @@ public:
     }
     
     // Returns pointer to the piece or nullptr if the square is empty
-    std::shared_ptr<ChessPiece> GetPiecePtr(Square square) {
+    SharedPiecePtr GetPiecePtr(Square square) {
         return m_chess_table[square];
     }
 
@@ -96,7 +96,7 @@ public:
         }
         for (int v = 1; v <= 8; v++) {
             for (int h = 1; h <= 8; h++) {
-                std::shared_ptr<ChessPiece> this_piece = GetPiecePtr({v, h});
+                SharedPiecePtr this_piece = GetPiecePtr({v, h});
                 if (this_piece != nullptr && this_piece->GetColor() != king_color && this_piece->IsChecking(this, king_square))
                     return true;
             }
@@ -180,7 +180,7 @@ public:
     }
 
     // writes possible moves in the provided vector
-    void PossibleMovementChecked(std::shared_ptr<ChessPiece> this_piece, std::vector<ChessMove>& can_move_checked) {
+    void PossibleMovementChecked(SharedPiecePtr this_piece, std::vector<ChessMove>& can_move_checked) {
         Square piece_square = this_piece->GetPosition();
         for (ChessMove& move : this_piece->PossibleMovement(this)) {
             move.moving_piece = this_piece;
@@ -189,7 +189,7 @@ public:
         }
     }
 
-    bool IsValidMove(std::shared_ptr<ChessPiece> this_piece, const ChessMove& move) {
+    bool IsValidMove(SharedPiecePtr this_piece, const ChessMove& move) {
         ChessMove helper_move = move;
         if (helper_move.special == PROMOTION)
             // promotion being just a movement of pawn can't influence check to the king
