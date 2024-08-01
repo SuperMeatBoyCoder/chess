@@ -62,13 +62,13 @@ public:
         if (m_color == 'B')
             h_delta = -1;
         ChessMove this_move = {m_square.v, m_square.h + h_delta};
+        
+        if (this_move.square.h == 8 || this_move.square.h == 1) {
+            this_move.special = PROMOTION;
+        }
 
         if (board->IsMovable(this_move.square)) {
-            if (this_move.square.h == 8 || this_move.square.h == 1) {
-                this_move.special = PROMOTION;
-            }
             can_move.push_back(this_move);
-            this_move.special = NORMAL_MOVE;
             this_move.square.h += h_delta;
             if (times_moved == 0 && board->IsMovable(this_move.square)) {
                 can_move.push_back(this_move);
@@ -285,4 +285,33 @@ public:
         return to_square == king_square;
     }
 };
+
+
+std::shared_ptr<ChessPiece> Board::CreatePiecePtr(PieceInfo raw_piece) {
+        std::shared_ptr<ChessPiece> piece;
+        // I guess it's the only way
+        switch (raw_piece.figure_type) {
+            case 'K':
+                piece = std::make_shared<King>(raw_piece);
+                break;
+            case 'P':
+                piece = std::make_shared<Pawn>(raw_piece);
+                break;
+            case 'N':
+                piece = std::make_shared<Night>(raw_piece);
+                break;
+            case 'B':
+                piece = std::make_shared<Bishop>(raw_piece);
+                break;
+            case 'R':
+                piece = std::make_shared<Rook>(raw_piece);
+                break;
+            case 'Q':
+                piece = std::make_shared<Queen>(raw_piece);
+                break;
+            default:
+                    throw "Invalid piece!";
+        }
+        return piece;
+    }
 }
