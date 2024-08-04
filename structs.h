@@ -2,9 +2,13 @@
 #include "config.h"
 
 namespace Chess {
-    
+
 class Board;
 class ChessPiece;
+
+enum move_types {
+    NORMAL_MOVE = 0, SHORT_CASTLE, LONG_CASTLE, EN_PASSANT, PROMOTION
+};
 
 struct Square {
     int v = -1, h = -1;

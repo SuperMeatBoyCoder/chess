@@ -26,11 +26,3 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& this_vector)
     }
     return out;
 }
-
-namespace Chess {
-const int NORMAL_MOVE = 0;
-const int SHORT_CASTLE = 1;
-const int LONG_CASTLE = 2;
-const int EN_PASSANT = 3;
-const int PROMOTION = 4;
-}
