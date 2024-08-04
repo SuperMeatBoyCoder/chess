@@ -1,3 +1,4 @@
+#include "chess_piece.h"
 #include "board.h"
 
 namespace Chess {
