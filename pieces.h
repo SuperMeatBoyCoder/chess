@@ -1,3 +1,4 @@
+#pragma once
 #include "chess_piece.h"
 #include "board.h"
 
@@ -28,7 +29,7 @@ public:
                 this_move.special = rook_v == 1 ? LONG_CASTLE : SHORT_CASTLE;
                 bool pieces_between = false;
                 this_move.square = {rook_v, m_square.h};
-                SharedPiecePtr rook = board->GetPiecePtr(this_move.square);
+                ChessPiece* rook = board->GetPiecePtr(this_move.square);
                 if (rook->GetType() == 'R' && rook->times_moved == 0) {
                     for (int v = std::min(m_square.v, rook_v) + 1; v < std::max(rook_v, m_square.v); v++) {
                         if (!board->IsEmpty({v, m_square.h})) pieces_between = true;
@@ -86,7 +87,7 @@ public:
 
             // En Passant
             if (board->IsCapturable({this_move.square.v, m_square.h}, m_color) && board->IsMovable(this_move.square)) {
-                SharedPiecePtr other_pawn = board->GetPiecePtr({this_move.square.v, m_square.h});
+                ChessPiece* other_pawn = board->GetPiecePtr({this_move.square.v, m_square.h});
                 ChessMove last_move = board->GetLastMove();
                 if (other_pawn->GetType() == 'P' && other_pawn->times_moved == 1 && last_move.moving_piece == other_pawn) {
                     this_move.captured_piece = other_pawn;
@@ -286,33 +287,4 @@ public:
         return to_square == king_square;
     }
 };
-
-
-SharedPiecePtr Board::CreatePiecePtr(PieceInfo raw_piece) {
-        SharedPiecePtr piece;
-        // I guess it's the only way
-        switch (raw_piece.figure_type) {
-            case 'K':
-                piece = std::make_shared<King>(raw_piece);
-                break;
-            case 'P':
-                piece = std::make_shared<Pawn>(raw_piece);
-                break;
-            case 'N':
-                piece = std::make_shared<Night>(raw_piece);
-                break;
-            case 'B':
-                piece = std::make_shared<Bishop>(raw_piece);
-                break;
-            case 'R':
-                piece = std::make_shared<Rook>(raw_piece);
-                break;
-            case 'Q':
-                piece = std::make_shared<Queen>(raw_piece);
-                break;
-            default:
-                    throw "Invalid piece!";
-        }
-        return piece;
-    }
 }

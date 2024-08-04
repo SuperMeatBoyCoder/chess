@@ -22,7 +22,7 @@ private:
         }
     }
 
-    SharedPiecePtr InputPiece() {
+    ChessPiece* InputPiece() {
         std::cout << "Choose a piece: (chess notation):\n";
         std::string notation;
         std::cin >> notation;
@@ -41,7 +41,7 @@ private:
         return board.GetPiecePtr(input_square);
     }
 
-    ChessMove InputMove(SharedPiecePtr this_piece) {
+    ChessMove InputMove(ChessPiece* this_piece) {
         char color = this_piece->GetColor();
         if ((color == 'W' && move % 2 == 0) ||
             (color == 'B' && move % 2 == 1)) {
@@ -99,7 +99,7 @@ public:
 
     void Update() {
         Render();
-        SharedPiecePtr this_piece;
+        ChessPiece* this_piece;
         try {
             this_piece = InputPiece();
         }   

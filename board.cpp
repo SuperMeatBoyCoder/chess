@@ -1,5 +1,5 @@
 #include "board.h"
-#include "chess_piece.h"
+#include "pieces.h"
 
 namespace Chess {
 
@@ -15,7 +15,7 @@ Board::~Board() {
     log("Board was deconstructed");
 }
 
-void Board::AddFigure(SharedPiecePtr new_piece) {
+void Board::AddFigure(ChessPiece* new_piece) {
     Square square;
     square = new_piece->GetPosition();
     m_chess_table[square] = new_piece;
@@ -27,7 +27,7 @@ void Board::AddFigure(SharedPiecePtr new_piece) {
     }
 }
 
-SharedPiecePtr Board::GetPiecePtr(Square square) {
+ChessPiece* Board::GetPiecePtr(Square square) {
     return m_chess_table[square];
 }
 
@@ -73,7 +73,7 @@ bool Board::CheckForCheck(char king_color) {
     }
     for (int v = 1; v <= 8; v++) {
         for (int h = 1; h <= 8; h++) {
-            SharedPiecePtr this_piece = GetPiecePtr({v, h});
+            ChessPiece* this_piece = GetPiecePtr({v, h});
             if (this_piece != nullptr && this_piece->GetColor() != king_color && this_piece->IsChecking(this, king_square))
                 return true;
         }
@@ -157,7 +157,7 @@ void Board::Revert(ChessMove last_move) {
 }
 
 // writes possible moves in the provided vector
-void Board::PossibleMovementChecked(SharedPiecePtr this_piece, std::vector<ChessMove>& can_move_checked) {
+void Board::PossibleMovementChecked(ChessPiece* this_piece, std::vector<ChessMove>& can_move_checked) {
     Square piece_square = this_piece->GetPosition();
     for (ChessMove& move : this_piece->PossibleMovement(this)) {
         move.moving_piece = this_piece;
@@ -166,7 +166,7 @@ void Board::PossibleMovementChecked(SharedPiecePtr this_piece, std::vector<Chess
     }
 }
 
-bool Board::IsValidMove(SharedPiecePtr this_piece, const ChessMove& move) {
+bool Board::IsValidMove(ChessPiece* this_piece, const ChessMove& move) {
     ChessMove helper_move = move;
     if (helper_move.special == PROMOTION)
         // promotion being just a movement of pawn can't influence check to the king
@@ -200,5 +200,32 @@ bool Board::IsValidMove(SharedPiecePtr this_piece, const ChessMove& move) {
         valid = false;
     Revert(helper_move);
     return valid;
+}
+
+ChessPiece* Board::CreatePiecePtr(PieceInfo raw_piece) {
+    // I guess it's the only way
+    switch (raw_piece.figure_type) {
+        case 'K':
+            m_all_pieces.push_back(std::make_unique<King>(raw_piece));
+            break;
+        case 'P':
+            m_all_pieces.push_back(std::make_unique<Pawn>(raw_piece));
+            break;
+        case 'N':
+            m_all_pieces.push_back(std::make_unique<Night>(raw_piece));
+            break;
+        case 'B':
+            m_all_pieces.push_back(std::make_unique<Bishop>(raw_piece));
+            break;
+        case 'R':
+            m_all_pieces.push_back(std::make_unique<Rook>(raw_piece));
+            break;
+        case 'Q':
+            m_all_pieces.push_back(std::make_unique<Queen>(raw_piece));
+            break;
+        default:
+                throw "Invalid piece!";
+    }
+    return m_all_pieces.back().get();
 }
 }

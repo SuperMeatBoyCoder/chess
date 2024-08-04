@@ -4,9 +4,11 @@ class Board {
     // v = verical, h = horizontal
     // verticals is used first due to traditional notation in chess
 private:
-    std::vector<SharedPiecePtr> m_chess_table;
+    std::vector<std::unique_ptr<ChessPiece>> m_all_pieces;
+    std::vector<ChessPiece*> m_chess_table;
     std::vector<ChessMove> m_move_log;
-    SharedPiecePtr m_white_king, m_black_king;
+    ChessPiece* m_white_king;
+    ChessPiece* m_black_king;
 
     const std::vector<PieceInfo> default_board_config = {
         {1, 2, 'W', 'P'}, {2, 2, 'W', 'P'}, {3, 2, 'W', 'P'}, {4, 2, 'W', 'P'},
@@ -23,10 +25,10 @@ private:
 public:
     Board();
     ~Board();
-    SharedPiecePtr CreatePiecePtr(PieceInfo raw_piece);
-    void AddFigure(SharedPiecePtr new_piece);
+    ChessPiece* CreatePiecePtr(PieceInfo raw_piece);
+    void AddFigure(ChessPiece* new_piece);
     // Returns pointer to the piece or nullptr if the square is empty
-    SharedPiecePtr GetPiecePtr(Square square);
+    ChessPiece* GetPiecePtr(Square square);
     char GetColor(Square square);
     char GetType(Square square);
     ChessMove GetLastMove();
@@ -38,7 +40,7 @@ public:
     bool CheckForCheck(char king_color);
     ChessMove Move(ChessMove move, bool just_checking = false);
     void Revert(ChessMove last_move);
-    void PossibleMovementChecked(SharedPiecePtr this_piece, std::vector<ChessMove>& can_move_checked);
-    bool IsValidMove(SharedPiecePtr this_piece, const ChessMove& move);
+    void PossibleMovementChecked(ChessPiece* this_piece, std::vector<ChessMove>& can_move_checked);
+    bool IsValidMove(ChessPiece* this_piece, const ChessMove& move);
 };
 }
