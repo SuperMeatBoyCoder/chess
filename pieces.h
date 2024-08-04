@@ -1,6 +1,6 @@
 #pragma once
+#include "structs.h"
 #include "chess_piece.h"
-#include "board.h"
 
 namespace Chess {
 class King : public ChessPiece {

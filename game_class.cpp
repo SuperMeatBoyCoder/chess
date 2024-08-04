@@ -1,5 +1,5 @@
-#include "config.h"
-#include "pieces.h"
+#include "board.cpp"
+#include "pieces.cpp"
 
 namespace Chess {
 class Game {

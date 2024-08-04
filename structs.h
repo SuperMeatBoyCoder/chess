@@ -2,8 +2,8 @@
 #include "config.h"
 
 namespace Chess {
+    
 class Board;
-
 class ChessPiece;
 
 struct Square {

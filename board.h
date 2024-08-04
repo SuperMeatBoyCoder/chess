@@ -1,4 +1,5 @@
 #pragma once
+#include "structs.h"
 namespace Chess {
 class Board {
     // v = verical, h = horizontal
