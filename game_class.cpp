@@ -101,6 +101,7 @@ public:
     }
 
     void Update() {
+        Render();
         if (!board.FindAllMoves(colors[move % 2])) {
             // checkmate
 
@@ -112,7 +113,6 @@ public:
             running = false;
             return;
         }
-        Render();
         ChessPiece* this_piece;
         try {
             this_piece = InputPiece();
