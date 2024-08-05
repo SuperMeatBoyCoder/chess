@@ -30,12 +30,12 @@ public:
     }
 
     // returns vector of possible moves without taking into account checks
-    virtual std::vector<ChessMove> PossibleMovement(Board* board) const {
+    virtual std::vector<ChessMove> PossibleMovement(const Board* board) const {
         return {};
     }
 
     // is this piece checking other side's king
-    virtual bool IsChecking(Board* board, Square king_square) const {
+    virtual bool IsChecking(const Board* board, Square king_square) const {
         return false;
     }
 };

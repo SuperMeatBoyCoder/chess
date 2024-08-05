@@ -3,7 +3,7 @@
 
 namespace Chess {
 
-std::vector<ChessMove> King::PossibleMovement(Board* board) const {
+std::vector<ChessMove> King::PossibleMovement(const Board* board) const {
     std::vector<ChessMove> can_move;
     ChessMove this_move;
     // We check each square in 3x3 area, because the king's square is not movable.
@@ -41,11 +41,11 @@ std::vector<ChessMove> King::PossibleMovement(Board* board) const {
 }
 
 
-bool King::IsChecking(Board* board, Square king_square) const {
+bool King::IsChecking(const Board* board, Square king_square) const {
     return abs(m_square.v - king_square.v) <= 1 && abs(m_square.h - king_square.h) <= 1;
 }
 
-std::vector<ChessMove> Pawn::PossibleMovement(Board* board) const {
+std::vector<ChessMove> Pawn::PossibleMovement(const Board* board) const {
     std::vector<ChessMove> can_move;
     int h_delta = 1;
     if (m_color == 'B')
@@ -90,14 +90,14 @@ std::vector<ChessMove> Pawn::PossibleMovement(Board* board) const {
     return can_move;
 }
 
-bool Pawn::IsChecking(Board* board, Square king_square) const {
+bool Pawn::IsChecking(const Board* board, Square king_square) const {
     int h_delta = 1;
     if (m_color == 'B')
         h_delta = -1;
     return m_square.h + h_delta == king_square.h && abs(m_square.v - king_square.v) == 1;
 }
 
-std::vector<ChessMove> Night::PossibleMovement(Board* board) const {
+std::vector<ChessMove> Night::PossibleMovement(const Board* board) const {
     std::vector<ChessMove> can_move;
     ChessMove this_move;
     for (int v_delta : {-1, 1}) {
@@ -120,13 +120,13 @@ std::vector<ChessMove> Night::PossibleMovement(Board* board) const {
     return can_move;
 }
 
-bool Night::IsChecking(Board* board, Square king_square) const {
+bool Night::IsChecking(const Board* board, Square king_square) const {
     std::pair<int, int> check(abs(m_square.v - king_square.v), abs(m_square.h - king_square.h));
     if (check.first > check.second) std::swap(check.first, check.second);
     return check == std::pair(1, 2);
 }
 
-std::vector<ChessMove> Bishop::PossibleMovement(Board* board) const {
+std::vector<ChessMove> Bishop::PossibleMovement(const Board* board) const {
     std::vector<ChessMove> can_move;
     ChessMove this_move;
     for (int v_delta : {-1, 1}) {
@@ -147,7 +147,7 @@ std::vector<ChessMove> Bishop::PossibleMovement(Board* board) const {
     return can_move;
 }
 
-bool Bishop::IsChecking(Board* board, Square king_square) const {
+bool Bishop::IsChecking(const Board* board, Square king_square) const {
     Square to_square = m_square;
     int v_delta = 1, h_delta = 1;
     if (to_square.v > king_square.v) v_delta = -1;
@@ -161,7 +161,7 @@ bool Bishop::IsChecking(Board* board, Square king_square) const {
     return to_square == king_square;
 }
 
-std::vector<ChessMove> Rook::PossibleMovement(Board* board) const {
+std::vector<ChessMove> Rook::PossibleMovement(const Board* board) const {
     std::vector<ChessMove> can_move;
     ChessMove this_move;
     for (int v_delta : {-1, 1}) {
@@ -191,7 +191,7 @@ std::vector<ChessMove> Rook::PossibleMovement(Board* board) const {
     return can_move;
 }
 
-bool Rook::IsChecking(Board* board, Square king_square) const {
+bool Rook::IsChecking(const Board* board, Square king_square) const {
     Square to_square = m_square;
     int v_delta = 0, h_delta = 0;
     if (to_square.v < king_square.v) v_delta = 1;
@@ -208,7 +208,7 @@ bool Rook::IsChecking(Board* board, Square king_square) const {
     return to_square == king_square;
 }
 
-std::vector<ChessMove> Queen::PossibleMovement(Board* board) const {
+std::vector<ChessMove> Queen::PossibleMovement(const Board* board) const {
     std::vector<ChessMove> can_move;
     ChessMove this_move;
     for (int v_delta : {-1, 0, 1}) {
@@ -229,7 +229,7 @@ std::vector<ChessMove> Queen::PossibleMovement(Board* board) const {
     return can_move;
 }
 
-bool Queen::IsChecking(Board* board, Square king_square) const {
+bool Queen::IsChecking(const Board* board, Square king_square) const {
     Square to_square = m_square;
     int v_delta = 0, h_delta = 0;
     if (to_square.v < king_square.v) v_delta = 1;

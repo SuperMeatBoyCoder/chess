@@ -41,7 +41,7 @@ public:
     bool IsMovable(Square square) const;
     bool IsCapturable(Square square, char color) const;
     bool isMovableOrCapturable(Square square, char color) const;
-    bool CheckForCheck(char king_color);
+    bool CheckForCheck(char king_color) const;
     ChessMove Move(ChessMove move, bool just_checking = false);
     void Revert(ChessMove last_move);
     const std::vector<ChessMove>& PossibleMovement(ChessPiece* this_piece);

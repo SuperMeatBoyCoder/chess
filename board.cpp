@@ -63,7 +63,7 @@ bool Board::isMovableOrCapturable(Square square, char color) const {
     return Isinside(square) && (IsEmpty(square) || GetColor(square) != color);
 }
 
-bool Board::CheckForCheck(char king_color) {
+bool Board::CheckForCheck(char king_color) const {
     Square king_square;
     if (king_color == 'B') {
         king_square = m_black_king->GetPosition();
