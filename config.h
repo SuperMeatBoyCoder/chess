@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <cassert>
+#include <map>
 
 std::ofstream file_log("log.txt");
 

@@ -25,7 +25,7 @@ struct ChessMove {
     int special = NORMAL_MOVE;
     bool done = false;
 
-    bool operator==(const ChessMove other) {
+    bool operator==(const ChessMove other) const {
         return moving_piece == other.moving_piece && done == other.done && square == other.square;
     }
 };

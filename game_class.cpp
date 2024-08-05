@@ -8,6 +8,7 @@ private:
     Board board;
     bool running = false;
     int move = 1;
+    const char* colors = "BW";
 
     void Render() {
         for (int h = 8; h >= 1; h--) {
@@ -27,8 +28,10 @@ private:
         std::string notation;
         std::cin >> notation;
         if (notation.size() == 1) {
-            if (notation == "0")
+            if (notation == "0") {
                 running = false;
+                throw "";
+            }
             throw "No such square exist!";
         }
         Square input_square = {notation[0] - 'a' + 1, notation[1] - '0'};
@@ -43,12 +46,10 @@ private:
 
     ChessMove InputMove(ChessPiece* this_piece) {
         char color = this_piece->GetColor();
-        if ((color == 'W' && move % 2 == 0) ||
-            (color == 'B' && move % 2 == 1)) {
+        if (color != colors[move % 2]) {
             throw "it's not your turn!";
         }
-        std::vector<ChessMove> can_move;
-        board.PossibleMovementChecked(this_piece, can_move);
+        const std::vector<ChessMove>& can_move = board.PossibleMovement(this_piece);
         if (can_move.empty()) {
             throw "This piece can't move!";
         }
@@ -60,8 +61,10 @@ private:
         std::string notation;
         std::cin >> notation;
         if (notation.size() == 1) {
-            if (notation == "0")
+            if (notation == "0") {
                 running = false;
+                throw "";
+            }
             throw "No such move!";
         }
         ChessMove input_move = {notation[0] - 'a' + 1, notation[1] - '0'};
@@ -98,6 +101,17 @@ public:
     }
 
     void Update() {
+        if (!board.FindAllMoves(colors[move % 2])) {
+            // checkmate
+
+            // if black should move now
+            if (colors[move % 2] == 'B')
+                std::cout << "White wins\n";
+            else
+                std::cout << "Black wins\n";
+            running = false;
+            return;
+        }
         Render();
         ChessPiece* this_piece;
         try {

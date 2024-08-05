@@ -7,6 +7,7 @@ class Board {
 private:
     std::vector<std::unique_ptr<ChessPiece>> m_all_pieces;
     std::vector<ChessPiece*> m_chess_table;
+    std::map<ChessPiece*, std::vector<ChessMove>> m_moves_table;
     std::vector<ChessMove> m_move_log;
     ChessPiece* m_white_king;
     ChessPiece* m_black_king;
@@ -22,6 +23,8 @@ private:
         {4, 1, 'W', 'Q'}, {4, 8, 'B', 'Q'},
         {5, 1, 'W', 'K'}, {5, 8, 'B', 'K'},
         };
+
+    void PossibleMovementChecked(ChessPiece* this_piece, std::vector<ChessMove>& can_move_checked);
 
 public:
     Board();
@@ -41,7 +44,9 @@ public:
     bool CheckForCheck(char king_color);
     ChessMove Move(ChessMove move, bool just_checking = false);
     void Revert(ChessMove last_move);
-    void PossibleMovementChecked(ChessPiece* this_piece, std::vector<ChessMove>& can_move_checked);
+    const std::vector<ChessMove>& PossibleMovement(ChessPiece* this_piece);
+    // Finds and stores all possible moves, returns false if checkmate
+    bool FindAllMoves(char moving_color);
     bool IsValidMove(ChessPiece* this_piece, const ChessMove& move);
 };
 }

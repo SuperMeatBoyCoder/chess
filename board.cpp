@@ -71,12 +71,10 @@ bool Board::CheckForCheck(char king_color) {
     else {
         king_square = m_white_king->GetPosition();
     }
-    for (int v = 1; v <= 8; v++) {
-        for (int h = 1; h <= 8; h++) {
-            ChessPiece* this_piece = GetPiecePtr({v, h});
-            if (this_piece != nullptr && this_piece->GetColor() != king_color && this_piece->IsChecking(this, king_square))
-                return true;
-        }
+    for (auto& this_piece_unique : m_all_pieces) {
+        ChessPiece* this_piece = this_piece_unique.get();
+        if (this_piece->GetColor() != king_color && this_piece->IsChecking(this, king_square))
+            return true;
     }
     return false;
 }
@@ -228,4 +226,23 @@ ChessPiece* Board::CreatePiecePtr(PieceInfo raw_piece) {
     }
     return m_all_pieces.back().get();
 }
+
+bool Board::FindAllMoves(char moving_color) {
+    m_moves_table.clear();
+    bool any_moves = false;
+    for (auto& this_piece_unique : m_all_pieces) {
+        ChessPiece* this_piece = this_piece_unique.get();
+        if (this_piece->GetColor() == moving_color) {
+            PossibleMovementChecked(this_piece, m_moves_table[this_piece]);
+            if (!m_moves_table[this_piece].empty())
+                any_moves = true;
+        }
+    }
+    return any_moves;
+}
+
+const std::vector<ChessMove>& Board::PossibleMovement(ChessPiece* this_piece) {
+    return m_moves_table[this_piece];
+}
+
 }
