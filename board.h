@@ -32,15 +32,15 @@ public:
     ChessPiece* CreatePiecePtr(PieceInfo raw_piece);
     void AddFigure(ChessPiece* new_piece);
     // Returns pointer to the piece or nullptr if the square is empty
-    ChessPiece* GetPiecePtr(Square square);
-    char GetColor(Square square);
-    char GetType(Square square);
-    ChessMove GetLastMove();
-    bool IsEmpty(Square square);
-    bool Isinside(Square square);
-    bool IsMovable(Square square);
-    bool IsCapturable(Square square, char color);
-    bool isMovableOrCapturable(Square square, char color);
+    ChessPiece* GetPiecePtr(Square square) const;
+    char GetColor(Square square) const;
+    char GetType(Square square) const;
+    ChessMove GetLastMove() const;
+    bool IsEmpty(Square square) const;
+    bool Isinside(Square square) const;
+    bool IsMovable(Square square) const;
+    bool IsCapturable(Square square, char color) const;
+    bool isMovableOrCapturable(Square square, char color) const;
     bool CheckForCheck(char king_color);
     ChessMove Move(ChessMove move, bool just_checking = false);
     void Revert(ChessMove last_move);

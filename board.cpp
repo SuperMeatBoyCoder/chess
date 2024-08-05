@@ -27,39 +27,39 @@ void Board::AddFigure(ChessPiece* new_piece) {
     }
 }
 
-ChessPiece* Board::GetPiecePtr(Square square) {
+ChessPiece* Board::GetPiecePtr(Square square) const {
     return m_chess_table[square];
 }
 
-char Board::GetColor(Square square) {
+char Board::GetColor(Square square) const {
     return m_chess_table[square]->GetColor();
 }
 
-char Board::GetType(Square square) {
+char Board::GetType(Square square) const {
     return m_chess_table[square]->GetType();
 }
 
-ChessMove Board::GetLastMove() {
+ChessMove Board::GetLastMove() const {
     return m_move_log.back();
 }
 
-bool Board::IsEmpty(Square square) {
+bool Board::IsEmpty(Square square) const {
     return m_chess_table[square] == nullptr;
 }
 
-bool Board::Isinside(Square square) {
+bool Board::Isinside(Square square) const {
     return 1 <= square.v && square.v <= 8 && 1 <= square.h && square.h <= 8;
 }
 
-bool Board::IsMovable(Square square) {
+bool Board::IsMovable(Square square) const {
     return Isinside(square) && IsEmpty(square);
 }
 
-bool Board::IsCapturable(Square square, char color) {
+bool Board::IsCapturable(Square square, char color) const {
     return Isinside(square) && !IsEmpty(square) && GetColor(square) != color;
 }
 
-bool Board::isMovableOrCapturable(Square square, char color) {
+bool Board::isMovableOrCapturable(Square square, char color) const {
     return Isinside(square) && (IsEmpty(square) || GetColor(square) != color);
 }
 
