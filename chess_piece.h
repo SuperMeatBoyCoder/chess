@@ -13,15 +13,15 @@ public:
 
     ChessPiece(PieceInfo info) : m_square(info.square), m_color(info.color), m_figure_type(info.figure_type) {}
 
-    Square GetPosition() {
+    Square GetPosition() const {
         return m_square;
     }
 
-    char GetType() {
+    char GetType() const {
         return m_figure_type;
     }
 
-    char GetColor() {
+    char GetColor() const {
         return m_color;
     }
     
