@@ -241,7 +241,7 @@ bool Board::FindAllMoves(char moving_color) {
     return any_moves;
 }
 
-const std::vector<ChessMove>& Board::PossibleMovement(ChessPiece* this_piece) {
+const std::vector<ChessMove>& Board::PossibleMovement(const ChessPiece* this_piece) {
     return m_moves_table[this_piece];
 }
 
