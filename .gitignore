@@ -3,4 +3,3 @@ log.txt
 *.exe
 src/include/SDL2/*
 src/lib/*
-SDL2.dll
