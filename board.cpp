@@ -1,5 +1,5 @@
-#include "board.h"
-#include "pieces.h"
+#include "src/board.h"
+#include "src/pieces.h"
 
 namespace Chess {
 
@@ -156,7 +156,6 @@ void Board::Revert(ChessMove last_move) {
 
 // writes possible moves in the provided vector
 void Board::PossibleMovementChecked(ChessPiece* this_piece, std::vector<ChessMove>& can_move_checked) {
-    Square piece_square = this_piece->GetPosition();
     for (ChessMove& move : this_piece->PossibleMovement(this)) {
         move.moving_piece = this_piece;
         if (IsValidMove(this_piece, move))

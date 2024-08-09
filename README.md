@@ -1,1 +1,1 @@
-Simple chess simulator for fun
+Simple chess simulator for fun using SDL2.

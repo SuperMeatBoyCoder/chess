@@ -1,5 +1,5 @@
-#include "board.h"
-#include "pieces.h"
+#include "src/board.h"
+#include "src/pieces.h"
 
 namespace Chess {
 
