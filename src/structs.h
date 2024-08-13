@@ -1,6 +1,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
-#include "config.h"
+
+#include "chess_config.h"
 
 namespace Chess {
 
