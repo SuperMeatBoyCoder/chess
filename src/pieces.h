@@ -1,4 +1,6 @@
-#pragma once
+#ifndef PIECES_H
+#define PIECES_H
+
 #include "structs.h"
 #include "chess_piece.h"
 
@@ -59,3 +61,4 @@ public:
     bool IsChecking(const Board* board, Square king_square) const override;
 };
 }
+#endif // PIECES_H

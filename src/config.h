@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CONFIG_H
+#define CONFIG_H
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -13,5 +15,6 @@ inline std::ofstream file_log("log.txt");
 
 #define log(x) std::ofstream("log.txt") << x << std::endl
 #define debug(x) file_log << std::filesystem::path(__FILE__).filename() << ' ' << __LINE__ << ": " << (#x) << " = " << x << std::endl
-
 }
+
+#endif // CONFIG_H

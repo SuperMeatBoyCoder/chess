@@ -1,5 +1,8 @@
-#pragma once
+#ifndef BOARD_H
+#define BOARD_H
+
 #include "structs.h"
+
 namespace Chess {
 class Board {
     // v = verical, h = horizontal
@@ -50,3 +53,4 @@ public:
     bool FindAllMoves(char moving_color);
 };
 }
+#endif //BOARD_H

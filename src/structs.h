@@ -1,4 +1,5 @@
-#pragma once
+#ifndef STRUCTS_H
+#define STRUCTS_H
 #include "config.h"
 
 namespace Chess {
@@ -35,3 +36,4 @@ struct PieceInfo {
     const char color, figure_type;
 };
 }
+#endif // STRUCTS_H

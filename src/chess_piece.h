@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CHESS_PIECE_H
+#define CHESS_PIECE_H
+
 #include "structs.h"
 
 namespace Chess {
@@ -40,3 +42,4 @@ public:
     }
 };
 }
+#endif // CHESS_PIECE_H

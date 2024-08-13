@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GAME_CLASS_H
+#define GAME_CLASS_H
+
 #include "board.h"
 #include "pieces.h"
 
@@ -25,3 +27,4 @@ public:
     void End();
 };
 }
+#endif // GAME_CLASS_H
