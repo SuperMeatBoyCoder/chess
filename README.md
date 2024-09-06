@@ -1,3 +1,3 @@
-Simple chess simulator for fun using SDL2.
+Simple chess simulator for fun.
 the project is raw, no easy build yet.
-drop latest include and lib from SDL2 into src and run the Makefile
+Run the Makefile in vs studio or similar IDE
