@@ -11,9 +11,9 @@
 
 namespace Chess {
 
-inline std::ofstream file_log("log.txt");
+static std::ofstream file_log("log.txt");
 
-#define log(x) std::ofstream("log.txt") << x << std::endl
+#define log(x) file_log << x << std::endl
 #define debug(x) file_log << std::filesystem::path(__FILE__).filename() << ' ' << __LINE__ << ": " << (#x) << " = " << x << std::endl
 }
 

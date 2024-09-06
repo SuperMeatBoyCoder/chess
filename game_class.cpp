@@ -3,21 +3,13 @@
 #include "src/game_class.h"
 
 namespace Chess {
-Game::Game(const int W, const int H) :WIDTH(W), HEIGHT(H) {
-    SDL_Init(SDL_INIT_EVERYTHING);
-    Window = SDL_CreateWindow("Chess", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, 0);
-
-    if (Window == NULL) {
-        throw "Could not create a window!\n";
-    }
+Game::Game() {
 
     log("Game was constructed\n");
     std::cout << "Type 0 to exit\n";
 }  
 
 Game::~Game() {
-    SDL_DestroyWindow(Window);
-    SDL_Quit();
     log("Game was deconstructed");
 }
 
@@ -136,12 +128,7 @@ void Game::Update() {
 
 void Game::Start() {
     running = true;
-    SDL_Event window_event;
-    do {
-        SDL_PollEvent(&window_event);
-    }
-    while (window_event.type != SDL_QUIT);
-    while (IsRunning()) {
+    while (running) {
         Update();
     }
 }
