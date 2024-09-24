@@ -1,5 +1,4 @@
 .vscode
 log.txt
 *.exe
-src/include/SDL2/*
-src/lib/*
+.idea*
